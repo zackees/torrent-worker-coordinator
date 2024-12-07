@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
+from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
 from torrent_worker_coordinator.settings import API_KEY, IS_TEST
 from torrent_worker_coordinator.util import async_download
 from torrent_worker_coordinator.version import VERSION
@@ -129,31 +130,30 @@ async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResp
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: This is a placeholder - we need to implement actual torrent tracking
-    # For now return a mock response
-    torrent_info = {
-        "name": name,
-        "status": "not_implemented",
-        "message": "Torrent tracking not yet implemented",
-    }
+    db = get_db()
+    torrent = TorrentManager.get_torrent(db, name)
+    if not torrent:
+        return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
-    return JSONResponse(torrent_info)
+    return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/take")
-async def route_torrent_take(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+async def route_torrent_take(
+    name: str, worker_id: str, api_key: str = ApiKeyHeader
+) -> JSONResponse:
     """Attempt to take ownership of a torrent for processing."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement torrent claiming logic
-    return JSONResponse(
-        {
-            "name": name,
-            "status": "not_implemented",
-            "message": "Torrent claiming not yet implemented",
-        }
-    )
+    db = get_db()
+    torrent = TorrentManager.take_torrent(db, name, worker_id)
+    if not torrent:
+        return JSONResponse(
+            {"error": "Torrent not found or already taken"}, status_code=404
+        )
+
+    return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_complete")
@@ -164,46 +164,50 @@ async def route_torrent_complete(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement completion handling
-    return JSONResponse(
-        {
-            "name": name,
-            "status": "not_implemented",
-            "message": "Completion handling not yet implemented",
-        }
+    db = get_db()
+    torrent = TorrentManager.update_torrent_status(
+        db, name, TorrentStatus.COMPLETED, progress=100
     )
+    if not torrent:
+        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+
+    return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_error")
-async def route_torrent_error(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+async def route_torrent_error(
+    name: str, error_message: str, api_key: str = ApiKeyHeader
+) -> JSONResponse:
     """Report an error for a torrent."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement error handling
-    return JSONResponse(
-        {
-            "name": name,
-            "status": "not_implemented",
-            "message": "Error handling not yet implemented",
-        }
+    db = get_db()
+    torrent = TorrentManager.update_torrent_status(
+        db, name, TorrentStatus.ERROR, error_message=error_message
     )
+    if not torrent:
+        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+
+    return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_update")
-async def route_torrent_update(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+async def route_torrent_update(
+    name: str, progress: int, status_message: str, api_key: str = ApiKeyHeader
+) -> JSONResponse:
     """Update the status of a torrent."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement status update handling
-    return JSONResponse(
-        {
-            "name": name,
-            "status": "not_implemented",
-            "message": "Status update handling not yet implemented",
-        }
+    db = get_db()
+    torrent = TorrentManager.update_torrent_status(
+        db, name, TorrentStatus.ACTIVE, progress=progress, last_update=status_message
     )
+    if not torrent:
+        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+
+    return JSONResponse(torrent.to_dict())
 
 
 @app.get("/torrent/list/all")
@@ -212,10 +216,9 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> JSONResponse:
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement torrent listing
-    return JSONResponse(
-        {"torrents": [], "message": "Torrent listing not yet implemented"}
-    )
+    db = get_db()
+    torrents = TorrentManager.get_all_torrents(db)
+    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/pending")
@@ -224,10 +227,9 @@ async def route_torrent_list_pending(api_key: str = ApiKeyHeader) -> JSONRespons
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement pending torrent listing
-    return JSONResponse(
-        {"torrents": [], "message": "Pending torrent listing not yet implemented"}
-    )
+    db = get_db()
+    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.PENDING)
+    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/active")
@@ -236,10 +238,9 @@ async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> JSONResponse
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement active torrent listing
-    return JSONResponse(
-        {"torrents": [], "message": "Active torrent listing not yet implemented"}
-    )
+    db = get_db()
+    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.ACTIVE)
+    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/completed")
@@ -248,10 +249,9 @@ async def route_torrent_list_completed(api_key: str = ApiKeyHeader) -> JSONRespo
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # TODO: Implement completed torrent listing
-    return JSONResponse(
-        {"torrents": [], "message": "Completed torrent listing not yet implemented"}
-    )
+    db = get_db()
+    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.COMPLETED)
+    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.post("/upload")
