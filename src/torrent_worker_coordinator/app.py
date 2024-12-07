@@ -108,6 +108,19 @@ async def protected_route(api_key: str = ApiKeyHeader) -> PlainTextResponse:
     return PlainTextResponse("Authenticated")
 
 
+# protected endpoints
+#   /info
+#   /torrent/{name}
+#   /torrent/{name}/take
+#   /torrent/{name}/on_complete
+#   /torrent/{name}/on_error
+#   /torrent/{name}/update
+#   /torrent/list/all
+#   /torrent/list/pending
+#   /torrent/list/active
+#   /torrent/list/completed
+
+
 @app.post("/upload")
 async def route_upload(
     datafile: UploadFile = File(...),

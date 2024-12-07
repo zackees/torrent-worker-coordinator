@@ -3,6 +3,7 @@ Implements async download
 """
 
 from fastapi import UploadFile  # type: ignore
+
 from torrent_worker_coordinator.settings import UPLOAD_CHUNK_SIZE
 
 
