@@ -74,7 +74,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV='C:\Users\niteris\dev\disklru\.venv'
+VIRTUAL_ENV='C:\Users\niteris\dev\mikeadams\torrent-worker-coordinator\.venv'
 if ([ "$OSTYPE" = "cygwin" ] || [ "$OSTYPE" = "msys" ]) && $(command -v cygpath &> /dev/null) ; then
     VIRTUAL_ENV=$(cygpath -u "$VIRTUAL_ENV")
 fi
@@ -84,8 +84,8 @@ _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV/Scripts:$PATH"
 export PATH
 
-if [ "xdisklru" != x ] ; then
-    VIRTUAL_ENV_PROMPT="(disklru) "
+if [ "xtorrent-worker-coordinator" != x ] ; then
+    VIRTUAL_ENV_PROMPT="(torrent-worker-coordinator) "
 else
     VIRTUAL_ENV_PROMPT="($(basename "$VIRTUAL_ENV")) "
 fi

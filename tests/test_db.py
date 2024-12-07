@@ -9,7 +9,13 @@ from torrent_worker_coordinator.db import (
 from torrent_worker_coordinator.models import Base, Torrent, TorrentStatus
 
 engine = create_engine("sqlite:///:memory:")
-Base.metadata.create_all(engine)
+
+
+@pytest.fixture(autouse=True)
+def cleanup_database():
+    """Clean up database before each test."""
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
 
 
 @pytest.fixture
