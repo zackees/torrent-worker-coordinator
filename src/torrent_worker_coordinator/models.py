@@ -6,7 +6,7 @@ from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import Integer, String, create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker  # type: ignore
 
 from torrent_worker_coordinator.log import make_logger
 
@@ -31,8 +31,8 @@ class Torrent(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
-    status = Column(
-        SQLEnum(TorrentStatus), nullable=False, default=TorrentStatus.PENDING
+    status: Column[TorrentStatus] = Column(  # type: ignore
+        SQLEnum(TorrentStatus), nullable=False, default=TorrentStatus.PENDING  # type: ignore
     )
     worker_id = Column(String, nullable=True)  # ID of worker processing this torrent
 
@@ -120,8 +120,8 @@ class TorrentManager:
             return None
 
         try:
-            torrent.status = TorrentStatus.ACTIVE
-            torrent.worker_id = worker_id
+            setattr(torrent, "status", TorrentStatus.ACTIVE)
+            setattr(torrent, "worker_id", worker_id)
             db.commit()
             db.refresh(torrent)
             return torrent
@@ -145,15 +145,15 @@ class TorrentManager:
             return None
 
         try:
-            torrent.status = status
+            setattr(torrent, "status", status)
             if error_message is not None:
-                torrent.error_message = error_message
+                setattr(torrent, "error_message", error_message)
             if progress is not None:
-                torrent.progress = progress
+                setattr(torrent, "progress", progress)
             if last_update is not None:
-                torrent.last_update = last_update
+                setattr(torrent, "last_update", last_update)
             if status == TorrentStatus.COMPLETED:
-                torrent.completed_at = datetime.utcnow()
+                setattr(torrent, "completed_at", datetime.utcnow())
 
             db.commit()
             db.refresh(torrent)
