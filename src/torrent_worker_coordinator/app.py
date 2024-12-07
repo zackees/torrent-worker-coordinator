@@ -108,17 +108,150 @@ async def protected_route(api_key: str = ApiKeyHeader) -> PlainTextResponse:
     return PlainTextResponse("Authenticated")
 
 
-# protected endpoints
-#   /info
-#   /torrent/{name}
-#   /torrent/{name}/take
-#   /torrent/{name}/on_complete
-#   /torrent/{name}/on_error
-#   /torrent/{name}/update
-#   /torrent/list/all
-#   /torrent/list/pending
-#   /torrent/list/active
-#   /torrent/list/completed
+@app.get("/info")
+async def route_info(api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Returns information about the service including version, startup time, and runtime mode."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    info = {
+        "version": VERSION,
+        "startup_time": STARTUP_DATETIME.isoformat(),
+        "mode": "TEST" if IS_TEST else "PRODUCTION",
+        "app_name": APP_DISPLAY_NAME,
+    }
+    return JSONResponse(info)
+
+
+@app.get("/torrent/{name}")
+async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Get information about a specific torrent by name."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: This is a placeholder - we need to implement actual torrent tracking
+    # For now return a mock response
+    torrent_info = {
+        "name": name,
+        "status": "not_implemented",
+        "message": "Torrent tracking not yet implemented",
+    }
+
+    return JSONResponse(torrent_info)
+
+
+@app.post("/torrent/{name}/take")
+async def route_torrent_take(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Attempt to take ownership of a torrent for processing."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement torrent claiming logic
+    return JSONResponse(
+        {
+            "name": name,
+            "status": "not_implemented",
+            "message": "Torrent claiming not yet implemented",
+        }
+    )
+
+
+@app.post("/torrent/{name}/on_complete")
+async def route_torrent_complete(
+    name: str, api_key: str = ApiKeyHeader
+) -> JSONResponse:
+    """Mark a torrent as completed."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement completion handling
+    return JSONResponse(
+        {
+            "name": name,
+            "status": "not_implemented",
+            "message": "Completion handling not yet implemented",
+        }
+    )
+
+
+@app.post("/torrent/{name}/on_error")
+async def route_torrent_error(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Report an error for a torrent."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement error handling
+    return JSONResponse(
+        {
+            "name": name,
+            "status": "not_implemented",
+            "message": "Error handling not yet implemented",
+        }
+    )
+
+
+@app.post("/torrent/{name}/on_update")
+async def route_torrent_update(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Update the status of a torrent."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement status update handling
+    return JSONResponse(
+        {
+            "name": name,
+            "status": "not_implemented",
+            "message": "Status update handling not yet implemented",
+        }
+    )
+
+
+@app.get("/torrent/list/all")
+async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Get a list of all torrents."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement torrent listing
+    return JSONResponse(
+        {"torrents": [], "message": "Torrent listing not yet implemented"}
+    )
+
+
+@app.get("/torrent/list/pending")
+async def route_torrent_list_pending(api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Get a list of pending torrents."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement pending torrent listing
+    return JSONResponse(
+        {"torrents": [], "message": "Pending torrent listing not yet implemented"}
+    )
+
+
+@app.get("/torrent/list/active")
+async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Get a list of active torrents."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement active torrent listing
+    return JSONResponse(
+        {"torrents": [], "message": "Active torrent listing not yet implemented"}
+    )
+
+
+@app.get("/torrent/list/completed")
+async def route_torrent_list_completed(api_key: str = ApiKeyHeader) -> JSONResponse:
+    """Get a list of completed torrents."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # TODO: Implement completed torrent listing
+    return JSONResponse(
+        {"torrents": [], "message": "Completed torrent listing not yet implemented"}
+    )
 
 
 @app.post("/upload")
