@@ -2,6 +2,7 @@
 Settings
 """
 
+import json
 import os
 
 from .paths import DATA_DIR
@@ -21,7 +22,9 @@ LOGGING_USE_GZIP = True
 UPLOAD_CHUNK_SIZE = 1024 * 64
 IS_TEST = os.getenv("IS_TEST", "0") == "1"
 API_KEY = os.getenv("API_KEY", "test")
-S3_CREDENTIALS: dict[str, str | dict | list] = {}
+S3_CREDENTIALS: dict[str, str | dict | list] = json.loads(
+    os.environ.get("S3_CREDENTIALS", "{}")
+)
 
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(DATA_UPLOAD_DIR, exist_ok=True)
