@@ -103,6 +103,14 @@ class TorrentManager:
             raise
 
     @staticmethod
+    def create_if_missing(db: Session, name: str) -> Torrent:
+        """Create a new torrent if it doesn't exist."""
+        torrent = TorrentManager.get_torrent(db, name)
+        if not torrent:
+            torrent = TorrentManager.create_torrent(db, name)
+        return torrent
+
+    @staticmethod
     def get_all_torrents(db: Session) -> list[Torrent]:
         """Get all torrents."""
         return db.query(Torrent).all()

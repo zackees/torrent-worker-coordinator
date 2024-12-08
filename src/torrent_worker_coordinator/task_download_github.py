@@ -85,7 +85,7 @@ def sync_task_download_github(
     repo_url: str,
     path: Path,
     torrents_path: Path,
-) -> None:
+) -> list[Path]:
     """Clone or update the repository at the given path.
 
     Args:
@@ -112,7 +112,14 @@ def sync_task_download_github(
                 print(f"Copying {src} to {dst}")
                 shutil.copy(src, dst)
 
+    out: list[Path] = []
+    for root, _, files in os.walk(torrents_path):
+        for file in files:
+            out.append(Path(root) / file)
+    out = sorted(out)
+    return out
+
 
 @asyncwrap
-def task_download_github(repo_url: str, path: Path, torrents_path: Path) -> None:
+def task_download_github(repo_url: str, path: Path, torrents_path: Path) -> list[Path]:
     return sync_task_download_github(repo_url, path, torrents_path)
