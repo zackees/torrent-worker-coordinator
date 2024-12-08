@@ -12,7 +12,7 @@ class TestGithubDownload(unittest.TestCase):
     """Test suite for GitHub repository download functionality."""
 
     TEST_REPO_URL = "https://github.com/zackees/torrent-test"
-    TEST_DIR = Path("test_repos")
+    TEST_DIR = Path(".cache/test_repos")
     TEST_TORRENTS_DIR = Path(".cache/test_torrents")
 
     def setUp(self):
