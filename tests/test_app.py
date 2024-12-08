@@ -4,6 +4,7 @@ from torrent_worker_coordinator.integration_test_env import (
     request_get,
     request_info,
     request_protected,
+    request_ready,
     request_torrent_list_all,
     run_server_in_thread,
 )
@@ -31,6 +32,8 @@ class ExampleTester(unittest.TestCase):
         """Test querying pending torrents."""
         with run_server_in_thread():
             result = request_info(API_KEY)
+            self.assertIn("version", result)
+            self.assertIn("ready", result)
             print(result)
             print()
 
@@ -38,6 +41,13 @@ class ExampleTester(unittest.TestCase):
         """Test querying pending torrents."""
         with run_server_in_thread():
             result = request_torrent_list_all(API_KEY)
+            print(result)
+            print()
+
+    def test_request_ready(self) -> None:
+        """Test querying pending torrents."""
+        with run_server_in_thread():
+            result = request_ready(API_KEY)
             print(result)
             print()
 

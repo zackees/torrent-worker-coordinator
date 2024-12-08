@@ -2,6 +2,8 @@ import os
 import subprocess
 from pathlib import Path
 
+from torrent_worker_coordinator.asyncwrap import asyncwrap
+
 
 def _clone_repository(path: Path, repo_url: str) -> None:
     """Clone the repository to the given path.
@@ -78,7 +80,7 @@ def _update_repository(path: Path) -> None:
         raise RuntimeError("Failed to update repository") from e
 
 
-def task_clone_or_update(
+def sync_task_download_github(
     repo_url: str,
     path: Path,
 ) -> None:
@@ -94,3 +96,8 @@ def task_clone_or_update(
     else:
         print(f"Cloning repository to {path}...")
         _clone_repository(path, repo_url)
+
+
+@asyncwrap
+def task_download_github(repo_url: str, path: Path) -> None:
+    return sync_task_download_github(repo_url, path)

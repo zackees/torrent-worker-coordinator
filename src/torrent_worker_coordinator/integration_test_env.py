@@ -59,6 +59,7 @@ ENDPOINT_GET = f"{URL}/get"
 ENDPOINT_PROTECTED = f"{URL}/protected"
 
 ENDPOINT_LIST_TORRENTS = f"{URL}/torrent/list/all"
+ENDPOINT_READY = f"{URL}/ready"
 
 # ENDPOINT_ADD_UID = f"{URL}/v1/add_uid"
 # ENDPOINT_REUSE_UID = f"{URL}/v1/reuse_uid"
@@ -161,6 +162,17 @@ def request_torrent_list_all(api_key: str) -> dict:
         "api-key": api_key,
     }
     response = httpx.get(ENDPOINT_LIST_TORRENTS, headers=headers, timeout=TIMEOUT)
+    response.raise_for_status()
+    return response.json()
+
+
+def request_ready(api_key: str) -> dict:
+    """Test the ready endpoint."""
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+    }
+    response = httpx.get(ENDPOINT_READY, headers=headers, timeout=TIMEOUT)
     response.raise_for_status()
     return response.json()
 
