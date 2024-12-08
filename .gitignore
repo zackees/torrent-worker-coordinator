@@ -154,3 +154,7 @@ tests/test_data/tmp/generate_files/
 .aider*
 !.aider.conf.yml
 !.aiderignore
+test_repos
+
+
+test_torrents

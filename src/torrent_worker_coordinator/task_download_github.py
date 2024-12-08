@@ -105,6 +105,8 @@ def sync_task_download_github(
     for root, _, files in os.walk(path):
         for file in files:
             src = Path(root) / file
+            if ".git" in src.parts:
+                continue
             dst = torrents_path / Path(root).name
             if src.is_file() and not dst.exists():
                 print(f"Copying {src} to {dst}")
