@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 
 
 # Start background processes
-uvicorn --host 0.0.0.0 --port 80 --workers 1 --forwarded-allow-ips=* statsdashpublic.app:app &
+uvicorn --host 0.0.0.0 --port 80 --workers 1 --forwarded-allow-ips=* torrent_worker_coordinator.app:app &
 
 # Wait for all background processes to finish
 wait
