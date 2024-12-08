@@ -15,21 +15,22 @@ class ExampleTester(unittest.TestCase):
     """Example tester."""
 
     def test_request_get(self) -> None:
-        """Test querying pending torrents."""
+        """Test the basic GET endpoint."""
         with run_server_in_thread():
             result = request_get()
             print(result)
             print()
 
     def test_request_protected(self) -> None:
-        """Test querying pending torrents."""
+        """Test the protected endpoint requiring API key."""
         with run_server_in_thread():
             result = request_protected(API_KEY)
             print(result)
             print()
 
     def test_request_info(self) -> None:
-        """Test querying pending torrents."""
+        """Test the info endpoint returns version and ready status."""
+
         with run_server_in_thread():
             result = request_info(API_KEY)
             self.assertIn("version", result)
@@ -38,14 +39,14 @@ class ExampleTester(unittest.TestCase):
             print()
 
     def test_request_torrent_list_all(self) -> None:
-        """Test querying pending torrents."""
+        """Test retrieving the full torrent list."""
         with run_server_in_thread():
             result = request_torrent_list_all(API_KEY)
             print(result)
             print()
 
     def test_request_ready(self) -> None:
-        """Test querying pending torrents."""
+        """Test the ready status endpoint."""
         with run_server_in_thread():
             result = request_ready(API_KEY)
             print(result)
