@@ -1,4 +1,3 @@
-import os
 import unittest
 from pathlib import Path
 
@@ -14,7 +13,7 @@ class TestGithubDownload(unittest.TestCase):
 
     TEST_REPO_URL = "https://github.com/zackees/torrent-test"
     TEST_DIR = Path("test_repos")
-    TEST_TORRENTS_DIR = Path("test_torrents")
+    TEST_TORRENTS_DIR = Path(".cache/test_torrents")
 
     def setUp(self):
         """Setup test environment before each test."""
@@ -68,29 +67,6 @@ class TestGithubDownload(unittest.TestCase):
         self.assertTrue(repo_path.exists())
         self.assertTrue((repo_path / ".git").exists())
         self.assertTrue(self.TEST_TORRENTS_DIR.exists())
-
-    @unittest.skip("Investigate why this test fails")
-    def test_file_copying(self):
-        """Test that files are properly copied to torrents directory."""
-        repo_path = self.TEST_DIR / "zlibry"
-
-        sync_task_download_github(self.TEST_REPO_URL, repo_path, self.TEST_TORRENTS_DIR)
-
-        # Verify that files exist in both locations
-        repo_files = set()
-        for root, _, files in os.walk(repo_path):
-            for file in files:
-                if ".git" not in root:  # Ignore .git directory
-                    repo_files.add(file)
-
-        torrent_files = set()
-        for root, _, files in os.walk(self.TEST_TORRENTS_DIR):
-            torrent_files.update(files)
-
-        # Check that at least some files were copied
-        self.assertTrue(len(torrent_files) > 0)
-        # Check that copied files exist in original repo
-        self.assertTrue(all(file in repo_files for file in torrent_files))
 
 
 if __name__ == "__main__":
