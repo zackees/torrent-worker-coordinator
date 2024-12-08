@@ -101,6 +101,12 @@ def route_log() -> PlainTextResponse:
     return PlainTextResponse(out)
 
 
+@app.get("/ready")
+async def ready() -> JSONResponse:
+    """Check if the service is ready."""
+    return JSONResponse("Ready")
+
+
 @app.get("/protected")
 async def protected_route(api_key: str = ApiKeyHeader) -> JSONResponse:
     """TODO - Add description."""
