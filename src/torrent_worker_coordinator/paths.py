@@ -11,7 +11,7 @@ for key, _ in os.environ.items():
         _IS_RENDER_COM = True
         break
 
-DATA_DIR = PROJECT_ROOT / "data" if not _IS_RENDER_COM else Path("/var/data")
+DATA_DIR = PROJECT_ROOT / ".cache" if not _IS_RENDER_COM else Path("/var/data")
 
 GITHUB_REPO_PATH = DATA_DIR / "github"
 TORRENTS_PATH = DATA_DIR / "torrents"
