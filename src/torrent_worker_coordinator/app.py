@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
-from torrent_worker_coordinator.settings import API_KEY, IS_TEST
+from torrent_worker_coordinator.settings import API_KEY, IS_TEST, S3_CREDENTIALS
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
 from torrent_worker_coordinator.util import async_download
 from torrent_worker_coordinator.version import VERSION
@@ -155,6 +155,9 @@ async def route_info(api_key: str = ApiKeyHeader) -> JSONResponse:
         "app_name": APP_DISPLAY_NAME,
         "github_downloaded": GITHUB_DOWNLOADED,
         "ready": READY,
+        "s3": (
+            S3_CREDENTIALS if not IS_TEST else {"error": "Not available in test mode"}
+        ),
     }
     return JSONResponse(info)
 
