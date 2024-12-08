@@ -102,11 +102,11 @@ def route_log() -> PlainTextResponse:
 
 
 @app.get("/protected")
-async def protected_route(api_key: str = ApiKeyHeader) -> PlainTextResponse:
+async def protected_route(api_key: str = ApiKeyHeader) -> JSONResponse:
     """TODO - Add description."""
     if not is_authenticated(api_key):
-        return PlainTextResponse("Not authenticated", status_code=401)
-    return PlainTextResponse("Authenticated")
+        return JSONResponse("Not authenticated", status_code=401)
+    return JSONResponse("Authenticated")
 
 
 @app.get("/info")

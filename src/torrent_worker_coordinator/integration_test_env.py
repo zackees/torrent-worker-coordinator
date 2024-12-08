@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 
+import httpx
 import uvicorn
 
 # from androidmonitor_backend.testing.db_test_env import db_test_env_init
@@ -52,7 +53,10 @@ PORT = 4424  # Arbitrarily chosen.
 # CLIENT_API_KEYS = CLIENT_API_KEYS
 # current_datetime = current_datetime  #
 
-# URL = f"http://{HOST}:{PORT}"
+URL = f"http://{HOST}:{PORT}"
+ENDPOINT_INFO = f"{URL}/info"
+ENDPOINT_GET = f"{URL}/get"
+ENDPOINT_PROTECTED = f"{URL}/protected"
 # ENDPOINT_ADD_UID = f"{URL}/v1/add_uid"
 # ENDPOINT_REUSE_UID = f"{URL}/v1/reuse_uid"
 # ENDPOINT_GETINFO_JSON = f"{URL}/v1/info/json"
@@ -118,6 +122,33 @@ def run_server_in_thread():
     finally:
         server.should_exit = True
         thread.join()
+
+
+def request_get() -> dict:
+    """Test the get method."""
+    response = httpx.get(ENDPOINT_GET, timeout=TIMEOUT)
+    return response.json()
+
+
+def request_protected(api_key: str) -> dict:
+    """Test the get method."""
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+    }
+    response = httpx.get(ENDPOINT_PROTECTED, headers=headers, timeout=TIMEOUT)
+    return response.json()
+
+
+def request_info(api_key: str) -> dict[str, str]:
+    """Test the info endpoint."""
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+    }
+    response = httpx.get(ENDPOINT_INFO, headers=headers, timeout=TIMEOUT)
+    response.raise_for_status()
+    return response.json()
 
 
 # def request_logged_in(api_key: str) -> bool:
