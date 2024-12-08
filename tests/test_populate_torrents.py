@@ -1,8 +1,6 @@
 import unittest
 from pathlib import Path
 
-from sqlalchemy.orm import Session
-
 from torrent_worker_coordinator.models import TorrentManager, get_db
 from torrent_worker_coordinator.paths import PROJECT_ROOT
 from torrent_worker_coordinator.task_populate_torrents import (
@@ -21,21 +19,16 @@ class TestPopulateTorrents(unittest.TestCase):
         """Setup test environment before each test."""
         self.TEST_DIR.mkdir(parents=True, exist_ok=True)
         self.TEST_TORRENTS_DIR.mkdir(parents=True, exist_ok=True)
-        self.db: Session = get_db()
-
-    def tearDown(self):
-        """Clean up after each test."""
-        self.db.close()
 
     def test_populate_torrents(self):
         """Test populating torrents from the test repository."""
         # Run the populate task
         sync_task_populate_torrents(
-            self.db, self.TEST_REPO_URL, self.TEST_DIR, self.TEST_TORRENTS_DIR
+            self.TEST_REPO_URL, self.TEST_DIR, self.TEST_TORRENTS_DIR
         )
 
         # Verify results in database
-        all_torrents = TorrentManager.get_all_torrents(self.db)
+        all_torrents = TorrentManager.get_all_torrents(get_db())
         self.assertTrue(len(all_torrents) > 0, "Should have found some torrents")
 
         # Verify at least one torrent has expected fields populated

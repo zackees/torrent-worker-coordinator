@@ -17,7 +17,7 @@ from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
 from torrent_worker_coordinator.settings import API_KEY, IS_TEST
-from torrent_worker_coordinator.task_download_github import task_download_github
+from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
 from torrent_worker_coordinator.util import async_download
 from torrent_worker_coordinator.version import VERSION
 
@@ -99,7 +99,7 @@ async def startup_event() -> None:
         log.info("No github repo specified")
     else:
         log.info("Downloading github repos")
-        await task_download_github(
+        await task_populate_torrents(
             repo_url=GITHUB_REPO_URL, path=GITHUB_REPO_PATH, torrents_path=TORRENTS_PATH
         )
         GITHUB_DOWNLOADED = True
