@@ -70,12 +70,14 @@ def _update_repository(path: Path) -> None:
         subprocess.CalledProcessError: If git command fails
     """
     try:
-        cmd_str = subprocess.list2cmdline(["git", "fetch", "origin"])
+        cmd_str = subprocess.list2cmdline(["cd", path, "&&", "git", "fetch", "origin"])
         print(f"Running: {cmd_str} in {path}")
-        subprocess.run(cmd_str, cwd=path, check=True, shell=True)
-        cmd_str = subprocess.list2cmdline(["git", "reset", "--hard", "origin/main"])
+        subprocess.run(cmd_str, check=True, shell=True)
+        cmd_str = subprocess.list2cmdline(
+            ["cd", path, "&&", "git", "reset", "--hard", "origin/main"]
+        )
         print(f"Running: {cmd_str} in {path}")
-        subprocess.run(cmd_str, cwd=path, check=True, shell=True)
+        subprocess.run(cmd_str, check=True, shell=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to update repository: {e}")
         raise RuntimeError("Failed to update repository") from e

@@ -15,7 +15,7 @@ class TestPopulateTorrents(unittest.TestCase):
 
     TEST_REPO_URL = "https://github.com/zackees/torrent-test"
     TEST_DIR = PROJECT_ROOT / Path(".cache/test_repos")
-    TEST_TORRENTS_DIR = Path(".cache/test_torrents")
+    TEST_TORRENTS_DIR = PROJECT_ROOT / Path(".cache/test_torrents")
 
     def setUp(self):
         """Setup test environment before each test."""
