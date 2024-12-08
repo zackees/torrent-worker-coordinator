@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
-from torrent_worker_coordinator.paths import GITHUB_REPO_PATH
+from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
 from torrent_worker_coordinator.settings import API_KEY, IS_TEST
 from torrent_worker_coordinator.task_download_github import task_download_github
 from torrent_worker_coordinator.util import async_download
@@ -99,7 +99,9 @@ async def startup_event() -> None:
         log.info("No github repo specified")
     else:
         log.info("Downloading github repos")
-        await task_download_github(GITHUB_REPO_URL, GITHUB_REPO_PATH)
+        await task_download_github(
+            repo_url=GITHUB_REPO_URL, path=GITHUB_REPO_PATH, torrents_path=TORRENTS_PATH
+        )
         GITHUB_DOWNLOADED = True
     READY = True
 

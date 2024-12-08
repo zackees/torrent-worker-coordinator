@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -83,6 +84,7 @@ def _update_repository(path: Path) -> None:
 def sync_task_download_github(
     repo_url: str,
     path: Path,
+    torrents_path: Path,
 ) -> None:
     """Clone or update the repository at the given path.
 
@@ -97,7 +99,18 @@ def sync_task_download_github(
         print(f"Cloning repository to {path}...")
         _clone_repository(path, repo_url)
 
+    os.makedirs(torrents_path, exist_ok=True)
+
+    # os walk the repo and copy files to torrents_path
+    for root, _, files in os.walk(path):
+        for file in files:
+            src = Path(root) / file
+            dst = torrents_path / Path(root).name
+            if src.is_file() and not dst.exists():
+                print(f"Copying {src} to {dst}")
+                shutil.copy(src, dst)
+
 
 @asyncwrap
-def task_download_github(repo_url: str, path: Path) -> None:
-    return sync_task_download_github(repo_url, path)
+def task_download_github(repo_url: str, path: Path, torrents_path: Path) -> None:
+    return sync_task_download_github(repo_url, path, torrents_path)
