@@ -13,7 +13,7 @@ from torrent_worker_coordinator.task_populate_torrents import (
 class TestPopulateTorrents(unittest.TestCase):
     """Test suite for torrent population functionality using real GitHub repo."""
 
-    TEST_REPO_URL = "https://github.com/zackees/torrent-test"
+    TEST_REPO_URL = "https://github.com/zackees/zlibry"
     TEST_DIR = PROJECT_ROOT / Path(".cache/test_repos")
     TEST_TORRENTS_DIR = PROJECT_ROOT / Path(".cache/test_torrents")
 

@@ -94,7 +94,7 @@ def sync_task_download_github(
         path: Directory for the repository
         repo_url: GitHub repository URL
     """
-    if path.exists():
+    if path.exists() and (path / ".git").exists():
         # print(f"Repository already exists at {path}. Updating...")
         # _update_repository(path)
         print("Repository already exists. Skipping update.")

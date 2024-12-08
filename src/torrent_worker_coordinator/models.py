@@ -9,6 +9,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker  # type: ignore
 
 from torrent_worker_coordinator.log import make_logger
+from torrent_worker_coordinator.paths import DB_PATH
+
+DB_URL = f"sqlite:///{DB_PATH}"
 
 log = make_logger(__name__)
 
@@ -66,7 +69,7 @@ class Torrent(Base):
 
 
 # Database setup
-engine = create_engine("sqlite:///torrents.db", echo=True)
+engine = create_engine(DB_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(engine)
 

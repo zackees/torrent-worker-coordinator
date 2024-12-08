@@ -15,3 +15,4 @@ DATA_DIR = PROJECT_ROOT / "data" if not _IS_RENDER_COM else Path("/var/data")
 
 GITHUB_REPO_PATH = DATA_DIR / "github"
 TORRENTS_PATH = DATA_DIR / "torrents"
+DB_PATH = DATA_DIR / "db.sqlite"
