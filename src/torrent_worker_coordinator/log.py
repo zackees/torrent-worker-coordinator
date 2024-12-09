@@ -8,11 +8,10 @@ from pathlib import Path
 from concurrent_log_handler import ConcurrentRotatingFileHandler  # type: ignore
 from file_read_backwards import FileReadBackwards  # type: ignore
 
+from torrent_worker_coordinator.paths import LOG_DIR, LOG_SYSTEM
 from torrent_worker_coordinator.settings import (
-    LOG_DIR,
     LOG_HISTORY,
     LOG_SIZE,
-    LOG_SYSTEM,
     LOGGING_FMT,
     LOGGING_USE_GZIP,
 )
@@ -21,7 +20,7 @@ from torrent_worker_coordinator.settings import (
 def _get_log_path(logname: str | None = None) -> str:
     """TODO - Add description."""
     if logname is None:
-        logname = LOG_SYSTEM
+        logname = str(LOG_SYSTEM)
     else:
         # if not an absolute path
         if not Path(logname).is_absolute():

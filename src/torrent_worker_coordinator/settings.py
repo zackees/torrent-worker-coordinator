@@ -4,15 +4,15 @@ Settings
 
 import json
 import os
+import secrets
+from pathlib import Path
 
-from .paths import DATA_DIR
+DEFAULT_API_KEY = "a8d4ef6c3ae1c2517dcb9a5dda2500ac"
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-DATA_UPLOAD_DIR = os.path.join(DATA_DIR, "upload")
-LOG_DIR = os.path.join(DATA_DIR, "logs")
-LOG_SYSTEM = os.path.join(LOG_DIR, "system.log")
+_HERE = Path(__file__).resolve().parent
+PROJECT_ROOT = _HERE.parent.parent
+
+
 LOG_SIZE = 512 * 1024
 LOG_HISTORY = 20
 LOGGING_FMT = (
@@ -21,11 +21,24 @@ LOGGING_FMT = (
 LOGGING_USE_GZIP = True
 UPLOAD_CHUNK_SIZE = 1024 * 64
 IS_TEST = os.getenv("IS_TEST", "0") == "1"
-API_KEY = os.getenv("API_KEY", "test")
+API_KEY = os.getenv("API_KEY", secrets.token_hex(16))
 S3_CREDENTIALS: dict[str, str | dict | list] = json.loads(
     os.environ.get("S3_CREDENTIALS", "{}")
 )
 
+GITHUB_REPO_URL = os.getenv("GITHUB_REPO_URL", None)
+SKIP_GITHUB_DOWNLOADS = os.environ.get("SKIP_GITHUB_DOWNLOADS", "0") == "1"
+
+
+IS_RENDER_COM = False
+
+for key, _ in os.environ.items():
+    if key.startswith("RENDER_"):
+        IS_RENDER_COM = True
+        break
+
+
+DEFAULT_DATA_DIR = PROJECT_ROOT / ".cache" if not IS_RENDER_COM else Path("/var/data")
+DATA_DIR = Path(os.getenv("DATA_DIR", DEFAULT_DATA_DIR))
+
 os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(DATA_UPLOAD_DIR, exist_ok=True)
-os.makedirs(LOG_DIR, exist_ok=True)

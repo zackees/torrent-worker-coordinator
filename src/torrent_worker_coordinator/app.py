@@ -16,7 +16,13 @@ from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
-from torrent_worker_coordinator.settings import API_KEY, IS_TEST, S3_CREDENTIALS
+from torrent_worker_coordinator.settings import (
+    API_KEY,
+    GITHUB_REPO_URL,
+    IS_TEST,
+    S3_CREDENTIALS,
+    SKIP_GITHUB_DOWNLOADS,
+)
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
 from torrent_worker_coordinator.util import async_download
 from torrent_worker_coordinator.version import VERSION
@@ -31,10 +37,6 @@ APP_DISPLAY_NAME = "torrent_worker_coordinator"
 
 READY = False
 GITHUB_DOWNLOADED = False
-
-SKIP_GITHUB_DOWNLOADS = os.environ.get("SKIP_GITHUB_DOWNLOADS", "0") == "1"
-
-GITHUB_REPO_URL = os.getenv("GITHUB_REPO_URL", None)
 
 
 def app_description() -> str:

@@ -1,18 +1,24 @@
-import os
-from pathlib import Path
+from torrent_worker_coordinator.settings import DATA_DIR, PROJECT_ROOT
 
-_HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = _HERE.parent.parent
+# all
+__all__ = [
+    "DATA_DIR",
+    "PROJECT_ROOT",
+    "DATA_UPLOAD_DIR",
+    "LOG_DIR",
+    "GITHUB_REPO_PATH",
+    "TORRENTS_PATH",
+    "DB_PATH",
+    "LOG_SYSTEM",
+]
+DATA_UPLOAD_DIR = DATA_DIR / "upload"
+LOG_DIR = DATA_DIR / "logs"
 
-_IS_RENDER_COM = False
-
-for key, _ in os.environ.items():
-    if key.startswith("RENDER_"):
-        _IS_RENDER_COM = True
-        break
-
-DATA_DIR = PROJECT_ROOT / ".cache" if not _IS_RENDER_COM else Path("/var/data")
 
 GITHUB_REPO_PATH = DATA_DIR / "github"
 TORRENTS_PATH = DATA_DIR / "torrents"
 DB_PATH = DATA_DIR / "db.sqlite"
+LOG_SYSTEM = LOG_DIR / "system.log"
+
+DATA_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
