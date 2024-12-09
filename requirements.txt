@@ -8,3 +8,4 @@ file_read_backwards
 colorama
 sqlalchemy
 httpx
+torrent-worker>=1.0.1
