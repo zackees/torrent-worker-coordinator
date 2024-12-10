@@ -34,7 +34,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if sys.gettrace():
     TIMEOUT = 1000000
 else:
-    TIMEOUT = 5  # seconds
+    TIMEOUT = 20  # seconds
 
 # # androidmonitor_backend.* allowed.
 # from androidmonitor_backend.settings import API_ADMIN_KEY, CLIENT_API_KEYS
@@ -116,13 +116,15 @@ def run_server_in_thread():
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
     try:
-        while not server.started:
-            time.sleep(1e-3)
-        # info = request_get_info(api_key=API_ADMIN_KEY)
-        # assert (
-        #     info["DB_URL"] == DB_URL
-        # ), f"DB_URL is {info['DB_URL']}, expected {DB_URL}"
-        yield
+        start_time = time.time()
+        while time.time() - start_time < TIMEOUT:
+            if server.started:
+                yield
+                return
+            time.sleep(0.1)
+        raise TimeoutError(
+            "Server did not start in time, was there an error in the app startup?"
+        )
     finally:
         server.should_exit = True
         thread.join()
