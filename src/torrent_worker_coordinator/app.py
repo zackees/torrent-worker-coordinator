@@ -157,9 +157,7 @@ async def route_info(api_key: str = ApiKeyHeader) -> JSONResponse:
         "app_name": APP_DISPLAY_NAME,
         "github_downloaded": GITHUB_DOWNLOADED,
         "ready": READY,
-        "s3": (
-            S3_CREDENTIALS if not IS_TEST else {"error": "Not available in test mode"}
-        ),
+        "s3": S3_CREDENTIALS,
     }
     return JSONResponse(info)
 
