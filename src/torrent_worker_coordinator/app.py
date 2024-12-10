@@ -11,7 +11,12 @@ import uvicorn  # type: ignore
 from colorama import just_fix_windows_console
 from fastapi import FastAPI, File, Header, UploadFile  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import (
+    FileResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
@@ -122,8 +127,10 @@ async def log_file() -> JSONResponse:
 
 # get the log file
 @app.get("/log")
-def route_log() -> PlainTextResponse:
+def route_log(api_key: str = ApiKeyHeader) -> PlainTextResponse:
     """Gets the log file."""
+    if not is_authenticated(api_key):
+        return JSONResponse("Not authenticated", status_code=401)  # type: ignore
     out = get_log_reversed(100).strip()
     if not out:
         out = "(Empty log file)"
@@ -174,6 +181,31 @@ async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResp
         return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
     return JSONResponse(torrent.to_dict())
+
+
+@app.get("/torrent/{name}/download")
+async def route_torrent_download(
+    name: str, api_key: str = ApiKeyHeader
+) -> FileResponse:
+    """Download a torrent by name."""
+    if not is_authenticated(api_key):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
+
+    db = get_db()
+    torrent = TorrentManager.get_torrent(db, name)
+    if torrent is None:
+        return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
+
+    torrent_path = TORRENTS_PATH / name
+    if not os.path.exists(torrent_path):
+        return JSONResponse(  # type: ignore
+            {"error": "Torrent file not found, even though it should exist"},
+            status_code=500,
+        )
+
+    return FileResponse(
+        torrent_path, media_type="application/x-bittorrent", filename=torrent_path.name
+    )
 
 
 @app.post("/torrent/{name}/take")
