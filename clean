@@ -1,3 +1,6 @@
-rm -rf venv
+#!/bin/bash
 
+set +x
+
+rm -rf venv
 rm -rf .cache
