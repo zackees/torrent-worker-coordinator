@@ -1,3 +1,10 @@
+import os
+
+os.environ["GITHUB_REPO_URL"] = (
+    "https://github.com/zackees/torrent-test"  # Small, fake and fast.
+)
+
+
 import unittest
 
 from torrent_worker_coordinator.integration_test_env import (
@@ -11,7 +18,7 @@ from torrent_worker_coordinator.integration_test_env import (
 from torrent_worker_coordinator.settings import API_KEY
 
 
-class ExampleTester(unittest.TestCase):
+class AppTester(unittest.TestCase):
     """Example tester."""
 
     def test_request_get(self) -> None:

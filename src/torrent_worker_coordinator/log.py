@@ -26,6 +26,8 @@ def _get_log_path(logname: str | None = None) -> str:
         if not Path(logname).is_absolute():
             # make it relative to the project root
             logname = str(Path(LOG_DIR, logname))
+    path_log = Path(logname)
+    path_log.parent.mkdir(parents=True, exist_ok=True)
     Path(logname).touch(exist_ok=True)
     return logname
 
