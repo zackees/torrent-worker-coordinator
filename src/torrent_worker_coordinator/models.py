@@ -1,6 +1,8 @@
+import os
+from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Generator, Optional
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -11,7 +13,9 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker  # type: ignor
 from torrent_worker_coordinator.log import make_logger
 from torrent_worker_coordinator.paths import DB_PATH
 
-DB_URL = f"sqlite:///{DB_PATH}"
+DEFAULT_DB_URL = f"sqlite:///{DB_PATH}"
+
+DB_URL = os.getenv("DB_URL", DEFAULT_DB_URL)
 
 log = make_logger(__name__)
 
@@ -20,6 +24,24 @@ class Base(DeclarativeBase):
     """Base class for SQLAlchemy models"""
 
     pass
+
+
+# Database setup
+engine = create_engine(DB_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base.metadata.create_all(engine)
+
+# context lib
+
+
+@contextmanager
+def get_db() -> Generator[Session, None, None]:
+    """Get database session."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 class TorrentStatus(str, Enum):
@@ -66,21 +88,6 @@ class Torrent(Base):
             "error_message": self.error_message,
             "last_update": self.last_update,
         }
-
-
-# Database setup
-engine = create_engine(DB_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(engine)
-
-
-def get_db() -> Session:
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        return db
-    finally:
-        db.close()
 
 
 class TorrentManager:

@@ -1,5 +1,15 @@
+import os
 import unittest
 from pathlib import Path
+
+# isort: off
+os.environ.update(
+    {
+        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+        "DB_URL": "sqlite:///.cache/test4.db",
+    }
+)
+# isort: on
 
 from torrent_worker_coordinator.models import TorrentManager, get_db
 from torrent_worker_coordinator.paths import PROJECT_ROOT
@@ -27,21 +37,22 @@ class TestPopulateTorrents(unittest.TestCase):
             self.TEST_REPO_URL, self.TEST_DIR, self.TEST_TORRENTS_DIR
         )
 
-        # Verify results in database
-        all_torrents = TorrentManager.get_all_torrents(get_db())
-        self.assertTrue(len(all_torrents) > 0, "Should have found some torrents")
+        with get_db() as db:
+            # Verify results in database
+            all_torrents = TorrentManager.get_all_torrents(db)
+            self.assertTrue(len(all_torrents) > 0, "Should have found some torrents")
 
-        # Verify at least one torrent has expected fields populated
-        first_torrent = all_torrents[0]
-        self.assertIsNotNone(first_torrent.name)
-        self.assertIsNotNone(first_torrent.status)
-        self.assertIsNotNone(first_torrent.created_at)
+            # Verify at least one torrent has expected fields populated
+            first_torrent = all_torrents[0]
+            self.assertIsNotNone(first_torrent.name)
+            self.assertIsNotNone(first_torrent.status)
+            self.assertIsNotNone(first_torrent.created_at)
 
-        # Verify files were copied to torrents directory
-        self.assertTrue(
-            any(self.TEST_TORRENTS_DIR.iterdir()),
-            "Torrents directory should contain files",
-        )
+            # Verify files were copied to torrents directory
+            self.assertTrue(
+                any(self.TEST_TORRENTS_DIR.iterdir()),
+                "Torrents directory should contain files",
+            )
 
 
 if __name__ == "__main__":

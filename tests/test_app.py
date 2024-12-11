@@ -1,11 +1,15 @@
 import os
-
-os.environ["GITHUB_REPO_URL"] = (
-    "https://github.com/zackees/torrent-test"  # Small, fake and fast.
-)
-
-
 import unittest
+
+# isort: off
+os.environ.update(
+    {
+        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+        "DB_URL": "sqlite:///.cache/test2.db",
+    }
+)
+# isort: on
+
 
 from torrent_worker_coordinator.integration_test_env import (
     request_get,

@@ -1,7 +1,17 @@
+import os
 import unittest
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+# isort: off
+os.environ.update(
+    {
+        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+        "DB_URL": "sqlite:///.cache/test3.db",
+    }
+)
+# isort: on
 
 from torrent_worker_coordinator.db import (
     query_torrents_finished,

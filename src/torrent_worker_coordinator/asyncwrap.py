@@ -34,4 +34,3 @@ def asyncwrap(func: Callable[..., T]) -> Callable[..., Awaitable[T]]:
 def close_executor():
     """Waits until the executor is closed"""
     DEFAULT_EXECUTOR.shutdown(wait=False, cancel_futures=True)
-

@@ -5,11 +5,10 @@
 import os
 from datetime import datetime
 from hmac import compare_digest
-from tempfile import TemporaryDirectory
 
 import uvicorn  # type: ignore
 from colorama import just_fix_windows_console
-from fastapi import FastAPI, File, Header, UploadFile  # type: ignore
+from fastapi import FastAPI, Header  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     FileResponse,
@@ -29,7 +28,6 @@ from torrent_worker_coordinator.settings import (
     SKIP_GITHUB_DOWNLOADS,
 )
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
-from torrent_worker_coordinator.util import async_download
 from torrent_worker_coordinator.version import VERSION
 
 just_fix_windows_console()
@@ -175,12 +173,13 @@ async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResp
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrent = TorrentManager.get_torrent(db, name)
-    if not torrent:
-        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+    # db = get_db()
+    with get_db() as db:
+        torrent = TorrentManager.get_torrent(db, name)
+        if not torrent:
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
-    return JSONResponse(torrent.to_dict())
+        return JSONResponse(torrent.to_dict())
 
 
 @app.get("/torrent/{name}/download")
@@ -191,21 +190,23 @@ async def route_torrent_download(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
-    db = get_db()
-    torrent = TorrentManager.get_torrent(db, name)
-    if torrent is None:
-        return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
+    with get_db() as db:
+        torrent = TorrentManager.get_torrent(db, name)
+        if torrent is None:
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
 
-    torrent_path = TORRENTS_PATH / name
-    if not os.path.exists(torrent_path):
-        return JSONResponse(  # type: ignore
-            {"error": "Torrent file not found, even though it should exist"},
-            status_code=500,
+        torrent_path = TORRENTS_PATH / name
+        if not os.path.exists(torrent_path):
+            return JSONResponse(  # type: ignore
+                {"error": "Torrent file not found, even though it should exist"},
+                status_code=500,
+            )
+
+        return FileResponse(
+            torrent_path,
+            media_type="application/x-bittorrent",
+            filename=torrent_path.name,
         )
-
-    return FileResponse(
-        torrent_path, media_type="application/x-bittorrent", filename=torrent_path.name
-    )
 
 
 @app.post("/torrent/{name}/take")
@@ -216,14 +217,15 @@ async def route_torrent_take(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrent = TorrentManager.take_torrent(db, name, worker_id)
-    if not torrent:
-        return JSONResponse(
-            {"error": "Torrent not found or already taken"}, status_code=404
-        )
+    # db = get_db()
+    with get_db() as db:
+        torrent = TorrentManager.take_torrent(db, name, worker_id)
+        if not torrent:
+            return JSONResponse(
+                {"error": "Torrent not found or already taken"}, status_code=404
+            )
 
-    return JSONResponse(torrent.to_dict())
+        return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_complete")
@@ -234,14 +236,15 @@ async def route_torrent_complete(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrent = TorrentManager.update_torrent_status(
-        db, name, TorrentStatus.COMPLETED, progress=100
-    )
-    if not torrent:
-        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+    # db = get_db()
+    with get_db() as db:
+        torrent = TorrentManager.update_torrent_status(
+            db, name, TorrentStatus.COMPLETED, progress=100
+        )
+        if not torrent:
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
-    return JSONResponse(torrent.to_dict())
+        return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_error")
@@ -252,14 +255,15 @@ async def route_torrent_error(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrent = TorrentManager.update_torrent_status(
-        db, name, TorrentStatus.ERROR, error_message=error_message
-    )
-    if not torrent:
-        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+    # db = get_db()
+    with get_db() as db:
+        torrent = TorrentManager.update_torrent_status(
+            db, name, TorrentStatus.ERROR, error_message=error_message
+        )
+        if not torrent:
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
-    return JSONResponse(torrent.to_dict())
+        return JSONResponse(torrent.to_dict())
 
 
 @app.post("/torrent/{name}/on_update")
@@ -270,14 +274,19 @@ async def route_torrent_update(
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrent = TorrentManager.update_torrent_status(
-        db, name, TorrentStatus.ACTIVE, progress=progress, last_update=status_message
-    )
-    if not torrent:
-        return JSONResponse({"error": "Torrent not found"}, status_code=404)
+    # db = get_db()
+    with get_db() as db:
+        torrent = TorrentManager.update_torrent_status(
+            db,
+            name,
+            TorrentStatus.ACTIVE,
+            progress=progress,
+            last_update=status_message,
+        )
+        if not torrent:
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
-    return JSONResponse(torrent.to_dict())
+        return JSONResponse(torrent.to_dict())
 
 
 @app.get("/torrent/list/all")
@@ -286,9 +295,10 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> JSONResponse:
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrents = TorrentManager.get_all_torrents(db)
-    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    # db = get_db()
+    with get_db() as db:
+        torrents = TorrentManager.get_all_torrents(db)
+        return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/pending")
@@ -297,9 +307,9 @@ async def route_torrent_list_pending(api_key: str = ApiKeyHeader) -> JSONRespons
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.PENDING)
-    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    with get_db() as db:
+        torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.PENDING)
+        return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/active")
@@ -308,9 +318,10 @@ async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> JSONResponse
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.ACTIVE)
-    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    # db = get_db()
+    with get_db() as db:
+        torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.ACTIVE)
+        return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
 @app.get("/torrent/list/completed")
@@ -319,26 +330,27 @@ async def route_torrent_list_completed(api_key: str = ApiKeyHeader) -> JSONRespo
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    db = get_db()
-    torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.COMPLETED)
-    return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    # db = get_db()
+    with get_db() as db:
+        torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.COMPLETED)
+        return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 
-@app.post("/upload")
-async def route_upload(
-    datafile: UploadFile = File(...),
-) -> PlainTextResponse:
-    """TODO - Add description."""
-    if datafile.filename is None:
-        return PlainTextResponse("No filename", status_code=400)
-    log.info("Upload called with file: %s", datafile.filename)
-    with TemporaryDirectory() as temp_dir:
-        temp_datapath: str = os.path.join(temp_dir, datafile.filename)
-        await async_download(datafile, temp_datapath)
-        await datafile.close()
-        log.info("Downloaded file %s to %s", datafile.filename, temp_datapath)
-        # shutil.move(temp_path, final_path)
-    return PlainTextResponse(f"Uploaded {datafile.filename} to {temp_datapath}")
+# @app.post("/upload")
+# async def route_upload(
+#     datafile: UploadFile = File(...),
+# ) -> PlainTextResponse:
+#     """TODO - Add description."""
+#     if datafile.filename is None:
+#         return PlainTextResponse("No filename", status_code=400)
+#     log.info("Upload called with file: %s", datafile.filename)
+#     with TemporaryDirectory() as temp_dir:
+#         temp_datapath: str = os.path.join(temp_dir, datafile.filename)
+#         await async_download(datafile, temp_datapath)
+#         await datafile.close()
+#         log.info("Downloaded file %s to %s", datafile.filename, temp_datapath)
+#         # shutil.move(temp_path, final_path)
+#     return PlainTextResponse(f"Uploaded {datafile.filename} to {temp_datapath}")
 
 
 def main() -> None:
