@@ -104,22 +104,56 @@ def sync_task_download_github(
 
     os.makedirs(torrents_path, exist_ok=True)
 
-    # os walk the repo and copy files to torrents_path
-    for root, _, files in os.walk(path):
-        root_path = Path(root)
-        print(f"Checking {root_path}")
-        if ".git" in root_path.parts:
+    list_paths: list[Path] = []
+    for root, dirs, files in os.walk(path):
+        # protect against git
+        if ".git" in root:
             continue
-        for file in files:
-
-            src_path = Path(Path(root) / file)
-            if not src_path.name.endswith(".torrent"):
+        # dirs
+        for dir in dirs:
+            if ".git" in dir:
                 continue
-            print(f"Checking {src_path}")
-            dst = torrents_path / root_path.name
-            if src_path.is_file() and not dst.exists():
-                print(f"Copying {src_path} to {dst}")
-                shutil.copy(str(src_path), dst)
+        for file in files:
+            if ".git" in file:
+                continue
+            list_paths.append(Path(root) / file)
+
+    # first filter - no git
+    # second filter - only .torrent files
+    list_paths = [
+        x for x in list_paths if ".git" not in x.parts and x.name.endswith(".torrent")
+    ]
+
+    # # os walk the repo and copy files to torrents_path
+    # for root, _, files in os.walk(path):
+    #     root_path = Path(root)
+    #     #print(f"Checking {root_path}")
+    #     if ".git" in root_path.parts:
+    #         continue
+
+    #     for file in files:
+
+    #         src_path = Path(Path(root) / file)
+
+    #         if ".git" in src_path.parts:
+    #             continue
+
+    #         if not src_path.name.endswith(".torrent"):
+    #             continue
+    #         print(f"Checking {src_path}")
+    #         dst = torrents_path / root_path.name
+    #         if src_path.is_file() and not dst.exists():
+    #             print(f"Copying {src_path} to {dst}")
+    #             shutil.copy(str(src_path), dst)
+
+    print(list_paths)
+
+    # now copy the files
+    for src_path in list_paths:
+        dst = torrents_path / src_path.name
+        if src_path.is_file() and not dst.exists():
+            print(f"Copying {src_path} to {dst}")
+            shutil.copy(str(src_path), dst)
 
     out: list[Path] = []
     for root, _, files in os.walk(torrents_path):
