@@ -6,7 +6,7 @@ import unittest
 os.environ.update(
     {
         "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///.cache/test.db",
+        "DB_URL": "sqlite:///.cache/test_app_complex.db",
     }
 )
 
@@ -31,10 +31,6 @@ class ComplexAppTester(unittest.TestCase):
         """Setup test environment before each test."""
         if IS_RENDER:
             return  # don't delete the data store while running on render.com
-
-        # Add a test torrent
-        # with get_db() as db:
-        #    TorrentManager.create_torrent(db, "test_torrent.torrent")
 
     @unittest.skipIf(IS_RENDER, "Why is this running on render?")
     def test_download_cycle(self) -> None:
