@@ -1,5 +1,4 @@
 import os
-import shutil
 import time
 import unittest
 
@@ -10,16 +9,16 @@ os.environ.update(
         "DB_URL": "sqlite:///.cache/test.db",
     }
 )
-# isort: on
 
-from torrent_worker_coordinator.integration_test_env import (
+
+from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_ready,
     request_torrent_list_all,
     run_server_in_thread,
 )
-from torrent_worker_coordinator.models import Base, TorrentManager, engine, get_db
-from torrent_worker_coordinator.paths import DATA_DIR
-from torrent_worker_coordinator.settings import API_KEY
+from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
+
+# isort: on
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
@@ -33,14 +32,9 @@ class ComplexAppTester(unittest.TestCase):
         if IS_RENDER:
             return  # don't delete the data store while running on render.com
 
-        Base.metadata.drop_all(engine)  # Clear any existing tables
-        Base.metadata.create_all(engine)  # Create fresh tables
-
         # Add a test torrent
-        with get_db() as db:
-            TorrentManager.create_torrent(db, "test_torrent.torrent")
-
-        shutil.rmtree(DATA_DIR, ignore_errors=True)
+        # with get_db() as db:
+        #    TorrentManager.create_torrent(db, "test_torrent.torrent")
 
     @unittest.skipIf(IS_RENDER, "Why is this running on render?")
     def test_download_cycle(self) -> None:
