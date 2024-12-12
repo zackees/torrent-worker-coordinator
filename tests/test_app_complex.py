@@ -43,22 +43,17 @@ class ComplexAppTester(unittest.TestCase):
             while app.request_ready() is False:
                 time.sleep(0.1)
 
-            # torrents = request_torrent_list_all(API_KEY)["torrents"]
             torrents = app.request_torrent_list_all()
             self.assertEqual(
                 1,
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            # out: dict = request_torrent_take(
-            #    API_KEY, torrent_name="test.torrent", worker_name="test_worker"
-            # )
             out: dict = app.request_torrent_take(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
             self.assertTrue(out["name"] == "test.torrent")
 
-            # torrents = request_torrent_list_all(API_KEY)["torrents"]
             torrents = app.request_torrent_list_all()
             self.assertEqual(
                 1,
