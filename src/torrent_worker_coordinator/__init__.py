@@ -1,3 +1,4 @@
+from .app_schemas import InfoResponse, TorrentListResponse, TorrentResponse
 from .client import Client
 from .test.test_app import TestApp
 
@@ -20,3 +21,12 @@ class Test:
     ) -> TestApp:
         app = TestApp(api_key=api_key)
         return app
+
+
+__all__ = [
+    "Api",
+    "Test",
+    "InfoResponse",
+    "TorrentListResponse",
+    "TorrentResponse",
+]

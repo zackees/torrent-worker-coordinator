@@ -165,10 +165,9 @@ class Client:
         self, order_by_oldest: bool = True
     ) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
-        json = self._post_json(
-            self._make_endpoint("torrent/list/pending"),
-            {"order_by_oldest": order_by_oldest},
-        )
+        body: dict = {"order_by_oldest": order_by_oldest}
+        url = self._make_endpoint("torrent/list/pending")
+        json = self._post_json(url, body)
         return TorrentListResponse(**json).torrents
 
     def list_active_torrents(self) -> list[TorrentResponse]:
