@@ -8,5 +8,5 @@ class Api:
         port: int,
         api_key: str,
     ) -> Client:
-        client = Client(host, port, api_key)
+        client = Client(host=host, port=port, api_key=api_key)
         return client
