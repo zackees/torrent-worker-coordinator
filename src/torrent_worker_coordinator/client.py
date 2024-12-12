@@ -84,16 +84,6 @@ class Client:
 
     def list_torrents(self) -> list[TorrentResponse]:
         """Test the list_all endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # response = httpx.get(
-        #     self.endpoint_list_torrents, headers=headers, timeout=TIMEOUT
-        # )
-        # response.raise_for_status()
-        # json = response.json()
-        # return TorrentListResponse(**json).torrents
         json = self.post_json(self.endpoint_list_torrents, {})
         return TorrentListResponse(**json).torrents
 
@@ -141,21 +131,6 @@ class Client:
 
     def torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # url = self._make_endpoint("torrent/info")
-        # params = {"name": name}
-        # response = httpx.get(
-        #     url,
-        #     headers=headers,
-        #     params=params,
-        #     timeout=TIMEOUT,
-        # )
-        # response.raise_for_status()
-        # json = response.json()
-        # return TorrentResponse(**json)
         json = self.post_json(self._make_endpoint("torrent/info"), {"name": name})
         return TorrentResponse(**json)
 
@@ -180,20 +155,6 @@ class Client:
         self, torrent_name: str, worker_name: str
     ) -> TorrentResponse:
         """Test the torrent complete endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # body = {"torrent_name": torrent_name, "worker_name": worker_name}
-        # url = self._make_endpoint("torrent/complete")
-        # response = httpx.post(
-        #     url,
-        #     headers=headers,
-        #     json=body,
-        #     timeout=TIMEOUT,
-        # )
-        # response.raise_for_status()
-        # json = response.json()
         json = self.post_json(
             self._make_endpoint("torrent/complete"),
             {"torrent_name": torrent_name, "worker_name": worker_name},
@@ -201,21 +162,7 @@ class Client:
         return TorrentResponse(**json)
 
     def set_torrent_error(self, name: str, error_message: str) -> dict:
-        # """Test the torrent error endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # body = {"name": name, "error_message": error_message}
-        # url = self._make_endpoint("torrent/error")
-        # response = httpx.post(
-        #     url,
-        #     headers=headers,
-        #     json=body,
-        #     timeout=TIMEOUT,
-        # )
-        # response.raise_for_status()
-        # return response.json()
+        """Test the torrent error endpoint."""
         json = self.post_json(
             self._make_endpoint("torrent/error"),
             {"name": name, "error_message": error_message},
@@ -226,24 +173,6 @@ class Client:
         self, worker_name: str, torrent_name: str, progress: int
     ) -> TorrentResponse:
         """Test the torrent update endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # body = {
-        #     "torrent_name": torrent_name,
-        #     "worker_name": worker_name,
-        #     "progress": progress,
-        # }
-        # url = self._make_endpoint("torrent/update")
-        # response = httpx.post(
-        #     url,
-        #     headers=headers,
-        #     json=body,
-        #     timeout=TIMEOUT,
-        # )
-        # response.raise_for_status()
-        # out = response.json()
         out = self.post_json(
             self._make_endpoint("torrent/update"),
             {
@@ -258,20 +187,6 @@ class Client:
         self, order_by_oldest: bool = True
     ) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # body = {"order_by_oldest": order_by_oldest}
-        # url = self._make_endpoint("torrent/list/pending")
-        # response = httpx.post(
-        #     url,
-        #     headers=headers,
-        #     timeout=TIMEOUT,
-        #     json=body,
-        # )
-        # response.raise_for_status()
-        # return TorrentListResponse(**response.json()).torrents
         json = self.post_json(
             self._make_endpoint("torrent/list/pending"),
             {"order_by_oldest": order_by_oldest},
@@ -295,18 +210,6 @@ class Client:
 
     def list_completed_torrents(self) -> list[TorrentResponse]:
         """Test the completed torrents list endpoint."""
-        # headers = {
-        #     "accept": "application/json",
-        #     "api-key": self.api_key,
-        # }
-        # url = self._make_endpoint("torrent/list/completed")
-        # response = httpx.get(
-        #     url,
-        #     headers=headers,
-        #     timeout=TIMEOUT,
-        # )
-        # response.raise_for_status()
-        # return TorrentListResponse(**response.json()).torrents
         url = self._make_endpoint("torrent/list/completed")
         json = self.post_json(url, {})
         return TorrentListResponse(**json).torrents
