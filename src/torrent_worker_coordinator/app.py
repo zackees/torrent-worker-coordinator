@@ -209,7 +209,7 @@ async def route_torrent_info(
         return JSONResponse(torrent.to_dict())
 
 
-@app.get("/torrent/download")
+@app.post("/torrent/download")
 async def route_torrent_download(
     request: TorrentDownloadRequest, api_key: str = ApiKeyHeader
 ) -> FileResponse:

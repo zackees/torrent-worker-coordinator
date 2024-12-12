@@ -152,11 +152,11 @@ class TestApp:
             "accept": "application/x-bittorrent",
             "api-key": self.api_key,
         }
-        params = {"torrent_name": torrent_name}
-        response = httpx.get(
+        json = {"torrent_name": torrent_name}
+        response = httpx.post(
             f"http://localhost:{self.port}/torrent/download",
             headers=headers,
-            params=params,
+            json=json,
             timeout=TIMEOUT,
         )
         response.raise_for_status()
