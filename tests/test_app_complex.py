@@ -59,6 +59,12 @@ class ComplexAppTester(unittest.TestCase):
             self.assertEqual("test.torrent", name)
             self.assertEqual("active", status)
 
+            out = app.request_torrent_complete(
+                torrent_name="test.torrent", worker_name="test_worker"
+            )
+            print(out)
+            print()
+
 
 if __name__ == "__main__":
     unittest.main()

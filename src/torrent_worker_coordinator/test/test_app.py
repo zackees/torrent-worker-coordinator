@@ -151,13 +151,13 @@ class TestApp:
         response.raise_for_status()
         return response.content
 
-    def request_torrent_complete(self, name: str) -> dict:
+    def request_torrent_complete(self, torrent_name: str, worker_name: str) -> dict:
         """Test the torrent complete endpoint."""
         headers = {
             "accept": "application/json",
             "api-key": self.api_key,
         }
-        body = {"name": name}
+        body = {"torrent_name": torrent_name, "worker_name": worker_name}
         response = httpx.post(
             f"http://localhost:{self.port}/torrent/complete",
             headers=headers,

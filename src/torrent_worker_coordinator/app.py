@@ -87,13 +87,14 @@ else:
 class TorrentInfoRequest(BaseModel):
     """Request parameters for torrent info."""
 
-    name: str
+    torrent_name: str
 
 
 class TorrentCompleteRequest(BaseModel):
     """Request parameters for torrent completion."""
 
-    name: str
+    torrent_name: str
+    worker_name: str
 
 
 class TorrentErrorRequest(BaseModel):
@@ -106,7 +107,8 @@ class TorrentErrorRequest(BaseModel):
 class TorrentUpdateRequest(BaseModel):
     """Request parameters for torrent update."""
 
-    name: str
+    torrent_name: str
+    worker_name: str
     progress: int
     status_message: str
 
@@ -227,7 +229,7 @@ async def route_torrent_info(
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     with get_db() as db:
-        torrent = TorrentManager.get_torrent(db, request.name)
+        torrent = TorrentManager.get_torrent(db, request.torrent_name)
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
@@ -298,7 +300,7 @@ async def route_torrent_complete(
 
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
-            db, request.name, TorrentStatus.COMPLETED, progress=100
+            db, request.torrent_name, TorrentStatus.COMPLETED, progress=100
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
@@ -335,7 +337,7 @@ async def route_torrent_update(
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
             db,
-            request.name,
+            request.torrent_name,
             TorrentStatus.ACTIVE,
             progress=request.progress,
             last_update=request.status_message,
