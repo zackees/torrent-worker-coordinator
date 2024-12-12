@@ -60,17 +60,6 @@ class TorrentManager:
         return db.query(Torrent).filter(Torrent.status == status).all()
 
     @staticmethod
-    def get_pending_torrents_by_oldest(db: Session, limit: int) -> list[Torrent]:
-        """Get pending torrents sorted by oldest."""
-        return (
-            db.query(Torrent)
-            .filter(Torrent.status == TorrentStatus.PENDING)
-            .order_by(Torrent.created_at)
-            .limit(limit)
-            .all()
-        )
-
-    @staticmethod
     def take_torrent(db: Session, name: str, worker_name: str) -> Optional[Torrent]:
         """Attempt to take ownership of a torrent."""
         torrent = TorrentManager.get_torrent(db, name)
