@@ -19,6 +19,7 @@ from fastapi.responses import (
 )
 
 from torrent_worker_coordinator.app_schemas import (
+    InfoResponse,
     TorrentCompleteRequest,
     TorrentDownloadRequest,
     TorrentErrorRequest,
@@ -170,22 +171,26 @@ async def protected_route(api_key: str = ApiKeyHeader) -> JSONResponse:
     return JSONResponse("Authenticated")
 
 
-@app.get("/info")
-async def route_info(api_key: str = ApiKeyHeader) -> JSONResponse:
+@app.get("/info", response_model=InfoResponse)
+async def route_info(api_key: str = ApiKeyHeader) -> InfoResponse:
     """Returns information about the service including version, startup time, and runtime mode."""
     if not is_authenticated(api_key):
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
-    info = {
-        "version": VERSION,
-        "startup_time": STARTUP_DATETIME.isoformat(),
-        "mode": "TEST" if IS_TEST else "PRODUCTION",
-        "app_name": APP_DISPLAY_NAME,
-        "github_downloaded": GITHUB_DOWNLOADED,
-        "ready": READY,
-        "s3": S3_CREDENTIALS,
-    }
-    return JSONResponse(info)
+    try:
+        out = InfoResponse(
+            version=VERSION,
+            startup_time=STARTUP_DATETIME.isoformat(),
+            mode="TEST" if IS_TEST else "PRODUCTION",
+            app_name=APP_DISPLAY_NAME,
+            github_downloaded=GITHUB_DOWNLOADED,
+            ready=READY,
+            s3=S3_CREDENTIALS,
+        )
+        return out
+    except Exception as e:
+        log.error("Error creating InfoResponse: %s", str(e))
+        raise
 
 
 @app.get("/torrent/info")

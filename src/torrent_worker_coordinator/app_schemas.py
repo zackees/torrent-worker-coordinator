@@ -49,6 +49,18 @@ class TorrentDownloadRequest(BaseModel):
     torrent_name: str
 
 
+class InfoResponse(BaseModel):
+    """Response body for info endpoint."""
+
+    version: str
+    startup_time: str
+    mode: str
+    app_name: str
+    github_downloaded: bool
+    ready: bool
+    s3: dict
+
+
 class TorrentResponse(BaseModel):
     """Response body for torrent info."""
 
