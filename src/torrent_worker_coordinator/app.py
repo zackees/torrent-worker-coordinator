@@ -231,13 +231,13 @@ async def route_torrent_download(
         )
 
 
-@app.post("/torrent/take")
+@app.post("/torrent/take", response_model=TorrentResponse)
 async def route_torrent_take(
     request: TorrentTakeRequest, api_key: str = ApiKeyHeader
-) -> JSONResponse:
+) -> TorrentResponse:
     """Attempt to take ownership of a torrent for processing."""
     if not is_authenticated(api_key):
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
     # db = get_db()
     with get_db() as db:
@@ -245,29 +245,30 @@ async def route_torrent_take(
             db, request.torrent_name, request.worker_name
         )
         if not torrent:
-            return JSONResponse(
+            return JSONResponse(  # type: ignore
                 {"error": "Torrent not found or already taken"}, status_code=404
             )
 
-        return JSONResponse(torrent.to_dict())
+        return TorrentResponse(**torrent.to_dict())
 
 
-@app.post("/torrent/complete")
+@app.post("/torrent/complete", response_model=TorrentResponse)
 async def route_torrent_complete(
-    request: TorrentCompleteRequest, api_key: str = ApiKeyHeader
-) -> JSONResponse:
+    request: TorrentCompleteRequest,
+    api_key: str = ApiKeyHeader,
+) -> TorrentResponse:
     """Mark a torrent as completed."""
     if not is_authenticated(api_key):
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
             db, request.torrent_name, TorrentStatus.COMPLETED, progress=100
         )
         if not torrent:
-            return JSONResponse({"error": "Torrent not found"}, status_code=404)
+            return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
 
-        return JSONResponse(torrent.to_dict())
+        return TorrentResponse(**torrent.to_dict())
 
 
 @app.post("/torrent/error")
