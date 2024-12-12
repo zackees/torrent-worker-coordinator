@@ -42,6 +42,21 @@ class Client:
             host = f"http://{self.host}:{self.port}"
         return f"{host}/{path}"
 
+    def post_json(self, endpoint: str, json: dict) -> dict:
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.post(
+            endpoint,
+            headers=headers,
+            json=json,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        json = response.json()
+        return json
+
     def info(self) -> InfoResponse:
         """Test the info endpoint."""
         headers = {
@@ -147,81 +162,103 @@ class Client:
         self, torrent_name: str, worker_name: str
     ) -> TorrentResponse:
         """Test the torrent complete endpoint."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        body = {"torrent_name": torrent_name, "worker_name": worker_name}
-        url = self._make_endpoint("torrent/complete")
-        response = httpx.post(
-            url,
-            headers=headers,
-            json=body,
-            timeout=TIMEOUT,
+        # headers = {
+        #     "accept": "application/json",
+        #     "api-key": self.api_key,
+        # }
+        # body = {"torrent_name": torrent_name, "worker_name": worker_name}
+        # url = self._make_endpoint("torrent/complete")
+        # response = httpx.post(
+        #     url,
+        #     headers=headers,
+        #     json=body,
+        #     timeout=TIMEOUT,
+        # )
+        # response.raise_for_status()
+        # json = response.json()
+        json = self.post_json(
+            self._make_endpoint("torrent/complete"),
+            {"torrent_name": torrent_name, "worker_name": worker_name},
         )
-        response.raise_for_status()
-        json = response.json()
         return TorrentResponse(**json)
 
     def set_torrent_error(self, name: str, error_message: str) -> dict:
-        """Test the torrent error endpoint."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        body = {"name": name, "error_message": error_message}
-        url = self._make_endpoint("torrent/error")
-        response = httpx.post(
-            url,
-            headers=headers,
-            json=body,
-            timeout=TIMEOUT,
+        # """Test the torrent error endpoint."""
+        # headers = {
+        #     "accept": "application/json",
+        #     "api-key": self.api_key,
+        # }
+        # body = {"name": name, "error_message": error_message}
+        # url = self._make_endpoint("torrent/error")
+        # response = httpx.post(
+        #     url,
+        #     headers=headers,
+        #     json=body,
+        #     timeout=TIMEOUT,
+        # )
+        # response.raise_for_status()
+        # return response.json()
+        json = self.post_json(
+            self._make_endpoint("torrent/error"),
+            {"name": name, "error_message": error_message},
         )
-        response.raise_for_status()
-        return response.json()
+        return json
 
     def update_torrent(
         self, worker_name: str, torrent_name: str, progress: int
     ) -> TorrentResponse:
         """Test the torrent update endpoint."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        body = {
-            "torrent_name": torrent_name,
-            "worker_name": worker_name,
-            "progress": progress,
-        }
-        url = self._make_endpoint("torrent/update")
-        response = httpx.post(
-            url,
-            headers=headers,
-            json=body,
-            timeout=TIMEOUT,
+        # headers = {
+        #     "accept": "application/json",
+        #     "api-key": self.api_key,
+        # }
+        # body = {
+        #     "torrent_name": torrent_name,
+        #     "worker_name": worker_name,
+        #     "progress": progress,
+        # }
+        # url = self._make_endpoint("torrent/update")
+        # response = httpx.post(
+        #     url,
+        #     headers=headers,
+        #     json=body,
+        #     timeout=TIMEOUT,
+        # )
+        # response.raise_for_status()
+        # out = response.json()
+        out = self.post_json(
+            self._make_endpoint("torrent/update"),
+            {
+                "torrent_name": torrent_name,
+                "worker_name": worker_name,
+                "progress": progress,
+            },
         )
-        response.raise_for_status()
-        out = response.json()
         return TorrentResponse(**out)
 
     def list_pending_torrents(
         self, order_by_oldest: bool = True
     ) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        body = {"order_by_oldest": order_by_oldest}
-        url = self._make_endpoint("torrent/list/pending")
-        response = httpx.post(
-            url,
-            headers=headers,
-            timeout=TIMEOUT,
-            json=body,
+        # headers = {
+        #     "accept": "application/json",
+        #     "api-key": self.api_key,
+        # }
+        # body = {"order_by_oldest": order_by_oldest}
+        # url = self._make_endpoint("torrent/list/pending")
+        # response = httpx.post(
+        #     url,
+        #     headers=headers,
+        #     timeout=TIMEOUT,
+        #     json=body,
+        # )
+        # response.raise_for_status()
+        # return TorrentListResponse(**response.json()).torrents
+        json = self.post_json(
+            self._make_endpoint("torrent/list/pending"),
+            {"order_by_oldest": order_by_oldest},
         )
-        response.raise_for_status()
-        return TorrentListResponse(**response.json()).torrents
+        return TorrentListResponse(**json).torrents
 
     def list_active_torrents(self) -> list[TorrentResponse]:
         """Test the active torrents list endpoint."""
