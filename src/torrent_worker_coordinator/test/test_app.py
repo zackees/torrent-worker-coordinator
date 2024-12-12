@@ -106,7 +106,7 @@ class TestApp:
         json = response.json()
         return TorrentResponse(**json)
 
-    def request_ready(self) -> dict:
+    def request_ready(self) -> bool:
         """Test the ready endpoint."""
         headers = {
             "accept": "application/json",
@@ -129,7 +129,7 @@ class TestApp:
         response.raise_for_status()
         return response.text
 
-    def request_torrent_info(self, name: str) -> dict:
+    def request_torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
         headers = {
             "accept": "application/json",
@@ -143,7 +143,8 @@ class TestApp:
             timeout=TIMEOUT,
         )
         response.raise_for_status()
-        return response.json()
+        json = response.json()
+        return TorrentResponse(**json)
 
     def request_torrent_download(self, torrent_name: str) -> bytes:
         """Test the torrent download endpoint."""
@@ -161,7 +162,9 @@ class TestApp:
         response.raise_for_status()
         return response.content
 
-    def request_torrent_complete(self, torrent_name: str, worker_name: str) -> dict:
+    def request_torrent_complete(
+        self, torrent_name: str, worker_name: str
+    ) -> TorrentResponse:
         """Test the torrent complete endpoint."""
         headers = {
             "accept": "application/json",
@@ -175,7 +178,8 @@ class TestApp:
             timeout=TIMEOUT,
         )
         response.raise_for_status()
-        return response.json()
+        json = response.json()
+        return TorrentResponse(**json)
 
     def request_torrent_error(self, name: str, error_message: str) -> dict:
         """Test the torrent error endpoint."""
