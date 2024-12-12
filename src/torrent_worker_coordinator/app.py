@@ -80,6 +80,40 @@ else:
     ApiKeyHeader = Header(...)
 
 
+class TorrentInfoRequest(BaseModel):
+    """Request parameters for torrent info."""
+
+    name: str
+
+
+class TorrentCompleteRequest(BaseModel):
+    """Request parameters for torrent completion."""
+
+    name: str
+
+
+class TorrentErrorRequest(BaseModel):
+    """Request parameters for torrent error."""
+
+    name: str
+    error_message: str
+
+
+class TorrentUpdateRequest(BaseModel):
+    """Request parameters for torrent update."""
+
+    name: str
+    progress: int
+    status_message: str
+
+
+class TorrentTakeRequest(BaseModel):
+    """Request body for taking a torrent."""
+
+    worker_name: str
+    torrent_name: str
+
+
 def is_authenticated(api_key: str | None) -> bool:
     """Checks if the request is authenticated."""
     if IS_TEST:
@@ -168,15 +202,16 @@ async def route_info(api_key: str = ApiKeyHeader) -> JSONResponse:
     return JSONResponse(info)
 
 
-@app.get("/torrent/{name}")
-async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResponse:
+@app.get("/torrent/info")
+async def route_torrent_info(
+    request: TorrentInfoRequest, api_key: str = ApiKeyHeader
+) -> JSONResponse:
     """Get information about a specific torrent by name."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # db = get_db()
     with get_db() as db:
-        torrent = TorrentManager.get_torrent(db, name)
+        torrent = TorrentManager.get_torrent(db, request.name)
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
@@ -216,13 +251,6 @@ async def route_torrent_download(
         )
 
 
-class TorrentTakeRequest(BaseModel):
-    """Request body for taking a torrent."""
-
-    worker_name: str
-    torrent_name: str
-
-
 @app.post("/torrent/take")
 async def route_torrent_take(
     request: TorrentTakeRequest, api_key: str = ApiKeyHeader
@@ -244,18 +272,17 @@ async def route_torrent_take(
         return JSONResponse(torrent.to_dict())
 
 
-@app.post("/torrent/{name}/on_complete")
+@app.post("/torrent/complete")
 async def route_torrent_complete(
-    name: str, api_key: str = ApiKeyHeader
+    request: TorrentCompleteRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
     """Mark a torrent as completed."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # db = get_db()
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
-            db, name, TorrentStatus.COMPLETED, progress=100
+            db, request.name, TorrentStatus.COMPLETED, progress=100
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
@@ -263,18 +290,17 @@ async def route_torrent_complete(
         return JSONResponse(torrent.to_dict())
 
 
-@app.post("/torrent/{name}/on_error")
+@app.post("/torrent/error")
 async def route_torrent_error(
-    name: str, error_message: str, api_key: str = ApiKeyHeader
+    request: TorrentErrorRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
     """Report an error for a torrent."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # db = get_db()
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
-            db, name, TorrentStatus.ERROR, error_message=error_message
+            db, request.name, TorrentStatus.ERROR, error_message=request.error_message
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
@@ -282,22 +308,21 @@ async def route_torrent_error(
         return JSONResponse(torrent.to_dict())
 
 
-@app.post("/torrent/{name}/on_update")
+@app.post("/torrent/update")
 async def route_torrent_update(
-    name: str, progress: int, status_message: str, api_key: str = ApiKeyHeader
+    request: TorrentUpdateRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
     """Update the status of a torrent."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # db = get_db()
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
             db,
-            name,
+            request.name,
             TorrentStatus.ACTIVE,
-            progress=progress,
-            last_update=status_message,
+            progress=request.progress,
+            last_update=request.status_message,
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
