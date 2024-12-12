@@ -118,6 +118,12 @@ class TorrentTakeRequest(BaseModel):
     torrent_name: str
 
 
+class TorrentListPendingRequest(BaseModel):
+    """Request parameters for torrent info."""
+
+    order_by_oldest: bool
+
+
 def is_authenticated(api_key: str | None) -> bool:
     """Checks if the request is authenticated."""
     if IS_TEST:
@@ -357,13 +363,17 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> JSONResponse:
 
 
 @app.get("/torrent/list/pending")
-async def route_torrent_list_pending(api_key: str = ApiKeyHeader) -> JSONResponse:
+async def route_torrent_list_pending(
+    request: TorrentListPendingRequest, api_key: str = ApiKeyHeader
+) -> JSONResponse:
     """Get a list of pending torrents."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     with get_db() as db:
-        torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.PENDING)
+        torrents = TorrentManager.get_torrents_by_status(
+            db, TorrentStatus.PENDING, order_by_oldest=request.order_by_oldest
+        )
         return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
 
 

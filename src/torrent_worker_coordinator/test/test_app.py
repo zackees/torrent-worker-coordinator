@@ -201,16 +201,18 @@ class TestApp:
         response.raise_for_status()
         return response.json()
 
-    def request_torrent_list_pending(self) -> list:
+    def request_torrent_list_pending(self, order_by_oldest) -> list:
         """Test the pending torrents list endpoint."""
         headers = {
             "accept": "application/json",
             "api-key": self.api_key,
         }
-        response = httpx.get(
+        body = {"order_by_oldest": order_by_oldest}
+        response = httpx.post(
             f"http://localhost:{self.port}/torrent/list/pending",
             headers=headers,
             timeout=TIMEOUT,
+            json=body,
         )
         response.raise_for_status()
         return response.json()["torrents"]

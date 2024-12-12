@@ -46,9 +46,29 @@ class TorrentManager:
         return db.query(Torrent).all()
 
     @staticmethod
-    def get_torrents_by_status(db: Session, status: TorrentStatus) -> list[Torrent]:
+    def get_torrents_by_status(
+        db: Session, status: TorrentStatus, order_by_oldest: bool = False
+    ) -> list[Torrent]:
         """Get torrents by status."""
+        if order_by_oldest:
+            return (
+                db.query(Torrent)
+                .filter(Torrent.status == status)
+                .order_by(Torrent.updated_at)
+                .all()
+            )
         return db.query(Torrent).filter(Torrent.status == status).all()
+
+    @staticmethod
+    def get_pending_torrents_by_oldest(db: Session, limit: int) -> list[Torrent]:
+        """Get pending torrents sorted by oldest."""
+        return (
+            db.query(Torrent)
+            .filter(Torrent.status == TorrentStatus.PENDING)
+            .order_by(Torrent.created_at)
+            .limit(limit)
+            .all()
+        )
 
     @staticmethod
     def take_torrent(db: Session, name: str, worker_name: str) -> Optional[Torrent]:

@@ -14,7 +14,9 @@ def query_torrents_pending(db: Session) -> list:
     Returns:
         List of Torrent objects with PENDING status
     """
-    return TorrentManager.get_torrents_by_status(db, TorrentStatus.PENDING)
+    return TorrentManager.get_torrents_by_status(
+        db, TorrentStatus.PENDING, order_by_oldest=True
+    )
 
 
 def query_torrents_finished(db: Session) -> list:
@@ -27,4 +29,6 @@ def query_torrents_finished(db: Session) -> list:
     Returns:
         List of Torrent objects with COMPLETED status
     """
-    return TorrentManager.get_torrents_by_status(db, TorrentStatus.COMPLETED)
+    return TorrentManager.get_torrents_by_status(
+        db, TorrentStatus.COMPLETED, order_by_oldest=False
+    )
