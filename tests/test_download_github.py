@@ -27,7 +27,7 @@ class TestGithubDownload(unittest.TestCase):
 
     def test_clone_repository(self):
         """Test cloning a repository."""
-        repo_path = self.TEST_DIR / "zlibry"
+        repo_path = self.TEST_DIR / "zlibry1"
         _clone_repository(repo_path, self.TEST_REPO_URL)
 
         self.assertTrue(repo_path.exists())
@@ -36,7 +36,7 @@ class TestGithubDownload(unittest.TestCase):
 
     def test_update_repository(self):
         """Test updating an existing repository."""
-        repo_path = self.TEST_DIR / "zlibry"
+        repo_path = self.TEST_DIR / "zlibry2"
 
         # First clone the repository
         _clone_repository(repo_path, self.TEST_REPO_URL)
@@ -49,7 +49,7 @@ class TestGithubDownload(unittest.TestCase):
 
     def test_sync_task_download_github(self):
         """Test the main sync task function."""
-        repo_path = self.TEST_DIR / "zlibry"
+        repo_path = self.TEST_DIR / "zlibry3"
 
         # Test initial clone
         sync_task_download_github(self.TEST_REPO_URL, repo_path, self.TEST_TORRENTS_DIR)

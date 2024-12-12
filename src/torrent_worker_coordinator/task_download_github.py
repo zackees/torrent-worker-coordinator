@@ -12,7 +12,9 @@ def _exec(cmd: str) -> int:
     Args:
         cmd: Command to execute
     """
-    return subprocess.run(cmd, shell=True).returncode
+    # return subprocess.run(cmd, shell=True, check=True).returncode
+    cp: subprocess.CompletedProcess = subprocess.run(cmd, shell=True)
+    return cp.returncode
 
 
 def _clone_repository(path: Path, repo_url: str) -> None:
