@@ -23,8 +23,8 @@ class TestPopulateTorrents(unittest.TestCase):
     """Test suite for torrent population functionality using real GitHub repo."""
 
     TEST_REPO_URL = "https://github.com/zackees/torrent-test"
-    TEST_DIR = PROJECT_ROOT / Path(".cache/test_repos")
-    TEST_TORRENTS_DIR = PROJECT_ROOT / Path(".cache/test_torrents")
+    TEST_DIR = PROJECT_ROOT / Path(".cache/test_repos2")
+    TEST_TORRENTS_DIR = PROJECT_ROOT / Path(".cache/test_torrents2")
 
     def setUp(self):
         """Setup test environment before each test."""

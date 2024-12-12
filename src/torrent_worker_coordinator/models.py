@@ -138,7 +138,7 @@ class TorrentManager:
         return db.query(Torrent).filter(Torrent.status == status).all()
 
     @staticmethod
-    def take_torrent(db: Session, name: str, worker_id: str) -> Optional[Torrent]:
+    def take_torrent(db: Session, name: str, worker_name: str) -> Optional[Torrent]:
         """Attempt to take ownership of a torrent."""
         torrent = TorrentManager.get_torrent(db, name)
         if not torrent or torrent.status != TorrentStatus.PENDING:
@@ -146,7 +146,7 @@ class TorrentManager:
 
         try:
             setattr(torrent, "status", TorrentStatus.ACTIVE)
-            setattr(torrent, "worker_id", worker_id)
+            setattr(torrent, "worker_id", worker_name)
             db.commit()
             db.refresh(torrent)
             return torrent

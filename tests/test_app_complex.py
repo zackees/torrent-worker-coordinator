@@ -38,7 +38,7 @@ class ComplexAppTester(unittest.TestCase):
     @unittest.skipIf(IS_RENDER, "Why is this running on render?")
     def test_download_cycle(self) -> None:
         """Test the basic GET endpoint."""
-        with TestApp() as app:
+        with TestApp(4544) as app:
 
             while app.request_ready() is False:
                 time.sleep(0.1)

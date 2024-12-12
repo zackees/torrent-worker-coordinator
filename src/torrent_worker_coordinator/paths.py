@@ -19,6 +19,7 @@ GITHUB_REPO_PATH = DATA_DIR / "github"
 TORRENTS_PATH = DATA_DIR / "torrents"
 DB_PATH = DATA_DIR / "db.sqlite"
 LOG_SYSTEM = LOG_DIR / "system.log"
+PORT_DB = DATA_DIR / "port.db"
 
 DATA_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
