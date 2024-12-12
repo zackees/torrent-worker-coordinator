@@ -7,6 +7,7 @@ Common code for integration tests.
 
 
 import random
+import time
 
 from torrent_worker_coordinator.client import Client
 from torrent_worker_coordinator.settings import API_KEY
@@ -29,9 +30,16 @@ class TestApp(Client):
 
     def __enter__(self):
         # Start the server in a context
-        self.server_context = run_server_in_thread("localhost", self.port)
-        self.server_context.__enter__()
-        return self
+
+        for _ in range(10):
+            try:
+                self.server_context = run_server_in_thread("localhost", self.port)
+                self.server_context.__enter__()
+                return self
+            except TimeoutError:
+                self.port = _get_next_port()
+            time.sleep(0.1)
+        raise RuntimeError("Failed to start server")
 
     def __exit__(self, exc_type, exc_value, traceback):
         # Ensure the server is cleaned up properly

@@ -45,7 +45,7 @@ class ServerWithShutdown(uvicorn.Server):
 
 
 @contextlib.contextmanager
-def run_server_in_thread(host: str, port: int):
+def run_server_in_thread(host: str, port: int, timeout: int = TIMEOUT):
     """
     Useful for testing, this function brings up a server.
     It's a context manager so that it can be used in a with statement.
@@ -63,7 +63,7 @@ def run_server_in_thread(host: str, port: int):
     thread.start()
     try:
         start_time = time.time()
-        while time.time() - start_time < TIMEOUT:
+        while time.time() - start_time < timeout:
             if server.started:
                 yield
                 return
