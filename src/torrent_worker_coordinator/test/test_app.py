@@ -79,7 +79,9 @@ class TestApp:
         json = response.json()
         return TorrentListResponse(**json).torrents
 
-    def request_torrent_take(self, torrent_name: str, worker_name: str) -> dict:
+    def request_torrent_take(
+        self, torrent_name: str, worker_name: str
+    ) -> TorrentResponse:
         """Test the take endpoint."""
         headers = {
             "accept": "application/json",
@@ -96,7 +98,8 @@ class TestApp:
             timeout=TIMEOUT,
         )
         response.raise_for_status()
-        return response.json()
+        json = response.json()
+        return TorrentResponse(**json)
 
     def request_ready(self) -> dict:
         """Test the ready endpoint."""

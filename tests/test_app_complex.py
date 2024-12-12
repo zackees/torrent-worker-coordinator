@@ -12,6 +12,7 @@ environ = {
 os.environ.update(environ)
 # isort: on
 
+from torrent_worker_coordinator.app_schemas import TorrentResponse  # noqa: E402
 from torrent_worker_coordinator.test.test_app import TestApp  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
@@ -42,11 +43,11 @@ class ComplexAppTester(unittest.TestCase):
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            out: dict = app.request_torrent_take(
+            out: TorrentResponse = app.request_torrent_take(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
             print(out)
-            self.assertTrue(out["name"] == "test.torrent")
+            self.assertTrue(out.name == "test.torrent")
 
             torrents = app.request_torrent_list_all()
             self.assertEqual(
