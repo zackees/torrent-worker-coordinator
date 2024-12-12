@@ -133,6 +133,7 @@ async def startup_event() -> None:
     """Startup event."""
     global READY
     global GITHUB_DOWNLOADED
+    _ = get_db()  # invoke to create the database
     log.info("Starting up torrent_worker_coordinator")
     if SKIP_GITHUB_DOWNLOADS:
         log.info("Skipping downloads on startup")

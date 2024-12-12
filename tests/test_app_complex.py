@@ -25,6 +25,8 @@ from torrent_worker_coordinator.test.test_app import TestApp  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
+PORT = 5023
+
 
 class ComplexAppTester(unittest.TestCase):
     """Example tester."""
@@ -38,7 +40,7 @@ class ComplexAppTester(unittest.TestCase):
     @unittest.skipIf(IS_RENDER, "Why is this running on render?")
     def test_download_cycle(self) -> None:
         """Test the basic GET endpoint."""
-        with TestApp(4544) as app:
+        with TestApp(PORT) as app:
 
             while app.request_ready() is False:
                 time.sleep(0.1)
