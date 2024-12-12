@@ -49,10 +49,11 @@ class TorrentManager:
     def get_torrents_by_status(
         db: Session,
         status: TorrentStatus,
-        order_by_oldest: bool = False,
+        order_by_oldest: bool | None = None,
         filter_by_worker_name: str | None = None,
     ) -> list[Torrent]:
         """Get torrents by status."""
+        order_by_oldest = order_by_oldest or False
         q = db.query(Torrent).filter(Torrent.status == status)
         if filter_by_worker_name:
             q = q.filter(Torrent.worker_id == filter_by_worker_name)

@@ -24,6 +24,7 @@ from torrent_worker_coordinator.app_schemas import (
     TorrentDownloadRequest,
     TorrentErrorRequest,
     TorrentInfoRequest,
+    TorrentListActiveRequest,
     TorrentListPendingRequest,
     TorrentListResponse,
     TorrentResponse,
@@ -358,14 +359,18 @@ async def route_torrent_list_pending(
 
 @app.post("/torrent/list/active", response_model=TorrentListResponse)
 async def route_torrent_list_active(
-    request: TorrentListPendingRequest, api_key: str = ApiKeyHeader
+    request: TorrentListActiveRequest, api_key: str = ApiKeyHeader
 ) -> TorrentListResponse:
     """Get a list of active torrents."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
     with get_db() as db:
-        torrents = TorrentManager.get_torrents_by_status(db, TorrentStatus.ACTIVE)
+        filter_by_worker = request.filter_by_worker_name
+        order_by_oldest = request.order_by_oldest
+        torrents = TorrentManager.get_torrents_by_status(
+            db, TorrentStatus.ACTIVE, order_by_oldest, filter_by_worker
+        )
         return TorrentListResponse(torrents=[t.to_dict() for t in torrents])
 
 
