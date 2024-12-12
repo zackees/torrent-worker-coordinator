@@ -156,13 +156,20 @@ class Client:
         response.raise_for_status()
         return response.json()
 
-    def update_torrent(self, name: str, progress: int, status_message: str) -> dict:
+    def update_torrent(
+        self, worker_name: str, torrent_name: str, progress: int, status_message: str
+    ) -> dict:
         """Test the torrent update endpoint."""
         headers = {
             "accept": "application/json",
             "api-key": self.api_key,
         }
-        body = {"name": name, "progress": progress, "status_message": status_message}
+        body = {
+            "torrent_name": torrent_name,
+            "worker_name": worker_name,
+            "progress": progress,
+            "status_message": status_message,
+        }
         response = httpx.post(
             f"http://localhost:{self.port}/torrent/update",
             headers=headers,
