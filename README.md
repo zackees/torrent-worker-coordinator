@@ -1,6 +1,8 @@
-# template-fastapi-project
+# torrent-worker-coordinator
 
-This template is used by https://github.com/zackees/make-fastapi-app
+Coordinating server for the torrent-worker.
+
+This will download a git repo of torrents 
 
 
 #### Platform tests
