@@ -67,6 +67,9 @@ class ComplexAppTester(unittest.TestCase):
 
             torrent_bytes = app.download_torrent(torrent_name="test.torrent")
             self.assertIsNotNone(torrent_bytes)
+            pending_torrents = app.list_pending_torrents()
+            print(pending_torrents)
+            print()
 
 
 if __name__ == "__main__":

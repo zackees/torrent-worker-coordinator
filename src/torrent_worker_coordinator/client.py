@@ -179,7 +179,9 @@ class Client:
         response.raise_for_status()
         return response.json()
 
-    def list_pending_torrents(self, order_by_oldest) -> list[TorrentResponse]:
+    def list_pending_torrents(
+        self, order_by_oldest: bool = True
+    ) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
         headers = {
             "accept": "application/json",

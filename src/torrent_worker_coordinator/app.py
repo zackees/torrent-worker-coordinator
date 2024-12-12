@@ -343,7 +343,7 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> TorrentListResp
         return JSONResponse(msg, status_code=500)  # type: ignore
 
 
-@app.get("/torrent/list/pending", response_model=TorrentListResponse)
+@app.post("/torrent/list/pending", response_model=TorrentListResponse)
 async def route_torrent_list_pending(
     request: TorrentListPendingRequest, api_key: str = ApiKeyHeader
 ) -> TorrentListResponse:
