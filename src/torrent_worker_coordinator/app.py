@@ -183,20 +183,26 @@ async def route_torrent_info(name: str, api_key: str = ApiKeyHeader) -> JSONResp
         return JSONResponse(torrent.to_dict())
 
 
-@app.get("/torrent/{name}/download")
+class TorrentDownloadRequest(BaseModel):
+    """Request body for taking a torrent."""
+
+    torrent_name: str
+
+
+@app.get("/torrent/download")
 async def route_torrent_download(
-    name: str, api_key: str = ApiKeyHeader
+    request: TorrentDownloadRequest, api_key: str = ApiKeyHeader
 ) -> FileResponse:
     """Download a torrent by name."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
 
     with get_db() as db:
-        torrent = TorrentManager.get_torrent(db, name)
+        torrent = TorrentManager.get_torrent(db, request.torrent_name)
         if torrent is None:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
 
-        torrent_path = TORRENTS_PATH / name
+        torrent_path = TORRENTS_PATH / request.torrent_name
         if not os.path.exists(torrent_path):
             return JSONResponse(  # type: ignore
                 {"error": "Torrent file not found, even though it should exist"},
