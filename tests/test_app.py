@@ -2,16 +2,18 @@ import os
 import unittest
 
 # isort: off
-os.environ.update(
-    {
-        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///memory",
-    }
-)
+from tempfile import NamedTemporaryFile  # noqa: E402
+
+URL = f"sqlite:///{NamedTemporaryFile().name}"
+environ = {
+    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+    "DB_URL": URL,
+}
+os.environ.update(environ)
 # isort: on
 
 
-from torrent_worker_coordinator.integration_test_env import (
+from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_get,
     request_info,
     request_protected,
@@ -19,26 +21,13 @@ from torrent_worker_coordinator.integration_test_env import (
     request_torrent_list_all,
     run_server_in_thread,
 )
-from torrent_worker_coordinator.models import Base, engine
-from torrent_worker_coordinator.settings import API_KEY
+from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
 
 class AppTester(unittest.TestCase):
     """Example tester."""
-
-    def setUp(self) -> None:
-        """Setup test environment before each test."""
-        if IS_RENDER:
-            return  # don't delete the data store while running on render.com
-
-        Base.metadata.drop_all(engine)  # Clear any existing tables
-        Base.metadata.create_all(engine)  # Create fresh tables
-
-        # Add a test torrent
-        # with get_db() as db:
-        #    TorrentManager.create_torrent(db, "test_torrent.torrent")
 
     def test_request_get(self) -> None:
         """Test the basic GET endpoint."""

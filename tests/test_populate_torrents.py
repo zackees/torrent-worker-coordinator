@@ -1,19 +1,20 @@
 import os
 import unittest
 from pathlib import Path
+from tempfile import NamedTemporaryFile  # noqa: E402
 
 # isort: off
-os.environ.update(
-    {
-        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///memory",
-    }
-)
+URL = f"sqlite:///{NamedTemporaryFile().name}"
+environ = {
+    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+    "DB_URL": URL,
+}
+os.environ.update(environ)
 # isort: on
 
-from torrent_worker_coordinator.models import TorrentManager, get_db
-from torrent_worker_coordinator.paths import PROJECT_ROOT
-from torrent_worker_coordinator.task_populate_torrents import (
+from torrent_worker_coordinator.models import TorrentManager, get_db  # noqa: E402
+from torrent_worker_coordinator.paths import PROJECT_ROOT  # noqa: E402
+from torrent_worker_coordinator.task_populate_torrents import (  # noqa: E402
     sync_task_populate_torrents,
 )
 

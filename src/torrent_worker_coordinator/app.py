@@ -303,9 +303,13 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> JSONResponse:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     # db = get_db()
-    with get_db() as db:
-        torrents = TorrentManager.get_all_torrents(db)
-        return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    try:
+        with get_db() as db:
+            torrents = TorrentManager.get_all_torrents(db)
+            return JSONResponse({"torrents": [t.to_dict() for t in torrents]})
+    except Exception as e:
+        msg = {"error": "Error getting torrents", "exception": str(e)}
+        return JSONResponse(msg, status_code=500)
 
 
 @app.get("/torrent/list/pending")

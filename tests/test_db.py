@@ -2,22 +2,24 @@ import os
 import unittest
 
 # isort: off
-os.environ.update(
-    {
-        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///memory",
-    }
-)
+from tempfile import NamedTemporaryFile  # noqa: E402
+
+URL = f"sqlite:///{NamedTemporaryFile().name}"
+environ = {
+    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+    "DB_URL": URL,
+}
+os.environ.update(environ)
 # isort: on
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import sessionmaker  # noqa: E402
 
-from torrent_worker_coordinator.db import (
+from torrent_worker_coordinator.db import (  # noqa: E402
     query_torrents_finished,
     query_torrents_pending,
 )
-from torrent_worker_coordinator.models import Base, Torrent, TorrentStatus
+from torrent_worker_coordinator.models import Base, Torrent, TorrentStatus  # noqa: E402
 
 
 class TestDatabase(unittest.TestCase):

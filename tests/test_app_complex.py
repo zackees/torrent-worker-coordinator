@@ -1,11 +1,13 @@
 import os  # noqa: E402
 import time  # noqa: E402
 import unittest  # noqa: E402
+from tempfile import NamedTemporaryFile  # noqa: E402
 
 # isort: off
+URL = f"sqlite:///{NamedTemporaryFile().name}"
 environ = {
     "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-    "DB_URL": "sqlite:///memory",
+    "DB_URL": URL,
 }
 os.environ.update(environ)
 # isort: on

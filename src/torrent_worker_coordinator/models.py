@@ -29,7 +29,10 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(DB_URL, echo=True)
+engine = create_engine(
+    DB_URL,
+    echo=True,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
