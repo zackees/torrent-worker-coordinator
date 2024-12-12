@@ -220,14 +220,17 @@ def request_torrent_list_all(api_key: str) -> dict:
     return response.json()
 
 
-def request_torrent_take(api_key: str, torrent_id: int) -> dict:
+def request_torrent_take(api_key: str, torrent_name: str) -> dict:
     """Test the take endpoint."""
     headers = {
         "accept": "application/json",
         "api-key": api_key,
     }
-    response = httpx.get(
-        f"{URL}/torrent/take/{torrent_id}", headers=headers, timeout=TIMEOUT
+    # body = {"worker_id": "test_worker"}
+    url = f"{URL}/torrent/{torrent_name}/take"
+    response = httpx.post(
+        url, headers=headers, timeout=TIMEOUT,
+
     )
     response.raise_for_status()
     return response.json()
