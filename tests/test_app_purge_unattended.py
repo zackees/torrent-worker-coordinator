@@ -48,16 +48,16 @@ class ComplexAppTester(unittest.TestCase):
             torrent = app.update_torrent("test_worker", "test.torrent", 50)
 
             with get_db() as db:
+                TorrentManager.recycle_unattended_torrents(db, max_age=1)
+                torrents = app.list_torrents()
+                self.assertEqual(1, len(torrents))
+                torrent = torrents[0]
+                self.assertTrue(torrent.status == "active")
                 TorrentManager.recycle_unattended_torrents(db, max_age=0)
-
-            torrents = app.list_torrents()
-            self.assertEqual(
-                1,
-                len(torrents),
-                f"Expected 0 torrents, got {len(torrents)}, which was {torrents}",
-            )
-            torrent = torrents[0]
-            self.assertTrue(torrent.status == "pending")
+                torrents = app.list_torrents()
+                self.assertEqual(1, len(torrents))
+                torrent = torrents[0]
+                self.assertTrue(torrent.status == "pending")
 
 
 if __name__ == "__main__":

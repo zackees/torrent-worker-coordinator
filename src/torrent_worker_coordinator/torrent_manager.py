@@ -60,7 +60,7 @@ class TorrentManager:
         return db.query(Torrent).filter(Torrent.status == status).all()
 
     @staticmethod
-    def recycle_unattended_torrents(db: Session, max_age: int) -> None:
+    def recycle_unattended_torrents(db: Session, max_age: float) -> None:
         """Purge unattended torrents."""
         oldest_allowed = datetime.utcnow() - timedelta(seconds=max_age)
         db.query(Torrent).filter(Torrent.status == TorrentStatus.ACTIVE).filter(
