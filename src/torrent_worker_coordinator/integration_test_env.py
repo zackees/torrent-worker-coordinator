@@ -12,13 +12,14 @@ import sys
 import threading
 import time
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import httpx
 import uvicorn
 
 # from androidmonitor_backend.testing.db_test_env import db_test_env_init
 from uvicorn.main import Config
+
+from torrent_worker_coordinator.settings import API_KEY
 
 # PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HERE = Path(__file__).parent
@@ -106,23 +107,17 @@ class ServerWithShutdown(uvicorn.Server):
 
 
 @contextlib.contextmanager
-def run_server_in_thread(env: dict[str, str] | None = None):
+def run_server_in_thread(port: int):
     """
     Useful for testing, this function brings up a server.
     It's a context manager so that it can be used in a with statement.
     """
-    dot_env = NamedTemporaryFile(mode="w", delete=False)
-    dot_env_str = (
-        "\n".join([f"{key}={value}" for key, value in env.items()]) if env else ""
-    )
-    dot_env.write(dot_env_str)
     config = Config(
         APP_NAME,
         host=HOST,
-        port=PORT,
+        port=port,
         log_level="info",
         use_colors=True,
-        env_file=dot_env.name,
     )
     server = ServerWithShutdown(config=config)
 
@@ -141,7 +136,6 @@ def run_server_in_thread(env: dict[str, str] | None = None):
     finally:
         server.should_exit = True
         thread.join()
-        dot_env.close()
 
 
 @contextlib.contextmanager
@@ -182,71 +176,102 @@ def run_server_in_process(env: dict[str, str]):
         proc.wait()
 
 
-def request_get() -> dict:
-    """Test the get method."""
-    response = httpx.get(ENDPOINT_GET, timeout=TIMEOUT)
-    return response.json()
+def make_port(string_to_hash: str) -> int:
+    """Make a port number from a string."""
+    # return int(crypt.crypt(string_to_hash, "salt")[0:5])  // this isn't right
+    hash_value = hash(string_to_hash)
+    return int(str(hash_value)[1:6])
 
 
-def request_protected(api_key: str) -> dict:
-    """Test the get method."""
-    headers = {
-        "accept": "application/json",
-        "api-key": api_key,
-    }
-    response = httpx.get(ENDPOINT_PROTECTED, headers=headers, timeout=TIMEOUT)
-    return response.json()
+class TestApp:
 
+    def __init__(self, api_key: str = API_KEY) -> None:
+        caller = sys._getframe(1)
+        self.port = make_port(caller.f_code.co_filename)
+        self.api_key = api_key
+        self.endpoint_get = f"http://localhost:{self.port}/get"
+        self.endpoint_protected = f"http://localhost:{self.port}/protected"
+        self.endpoint_info = f"http://localhost:{self.port}/info"
+        self.endpoint_list_torrents = f"http://localhost:{self.port}/torrent/list/all"
+        self.endpoint_ready = f"http://localhost:{self.port}/ready"
+        self.server_context = None
 
-def request_info(api_key: str) -> dict[str, str]:
-    """Test the info endpoint."""
-    headers = {
-        "accept": "application/json",
-        "api-key": api_key,
-    }
-    response = httpx.get(ENDPOINT_INFO, headers=headers, timeout=TIMEOUT)
-    response.raise_for_status()
-    return response.json()
+    def __enter__(self):
+        # Start the server in a context
+        self.server_context = run_server_in_thread(self.port)
+        self.server_context.__enter__()
+        return self
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        # Ensure the server is cleaned up properly
+        if self.server_context:
+            self.server_context.__exit__(exc_type, exc_value, traceback)
+            self.server_context = None
 
-def request_torrent_list_all(api_key: str) -> dict:
-    """Test the list_all endpoint."""
-    headers = {
-        "accept": "application/json",
-        "api-key": api_key,
-    }
-    response = httpx.get(ENDPOINT_LIST_TORRENTS, headers=headers, timeout=TIMEOUT)
-    response.raise_for_status()
-    return response.json()
+    def request_get(self) -> dict:
+        """Test the get method."""
+        response = httpx.get(self.endpoint_get, timeout=TIMEOUT)
+        return response.json()
 
+    def request_protected(self) -> dict:
+        """Test the get method."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(self.endpoint_protected, headers=headers, timeout=TIMEOUT)
+        return response.json()
 
-def request_torrent_take(api_key: str, torrent_name: str, worker_name: str) -> dict:
-    """Test the take endpoint."""
-    headers = {
-        "accept": "application/json",
-        "api-key": api_key,
-    }
-    body = {"worker_name": worker_name}
-    url = f"{URL}/torrent/{torrent_name}/take"
-    response = httpx.post(
-        url,
-        headers=headers,
-        json=body,
-        timeout=TIMEOUT,
-    )
-    response.raise_for_status()
-    return response.json()
+    def request_info(self) -> dict[str, str]:
+        """Test the info endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(self.endpoint_info, headers=headers, timeout=TIMEOUT)
+        response.raise_for_status()
+        return response.json()
 
+    def request_torrent_list_all(self) -> dict:
+        """Test the list_all endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(
+            self.endpoint_list_torrents, headers=headers, timeout=TIMEOUT
+        )
+        response.raise_for_status()
+        return response.json()["torrents"]
 
-def request_ready(api_key: str) -> dict:
-    """Test the ready endpoint."""
-    headers = {
-        "accept": "application/json",
-        "api-key": api_key,
-    }
-    response = httpx.get(ENDPOINT_READY, headers=headers, timeout=TIMEOUT)
-    response.raise_for_status()
-    return response.json()
+    def request_torrent_take(self, torrent_name: str, worker_name: str) -> dict:
+        """Test the take endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        body = {"worker_name": worker_name}
+        # url = f"{URL}/torrent/{torrent_name}/take"
+        url = f"http://localhost:{self.port}/torrent/{torrent_name}/take"
+        response = httpx.post(
+            url,
+            headers=headers,
+            json=body,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def request_ready(self) -> dict:
+        """Test the ready endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        # response = httpx.get(ENDPOINT_READY, headers=headers, timeout=TIMEOUT)
+        response = httpx.get(self.endpoint_ready, headers=headers, timeout=TIMEOUT)
+        response.raise_for_status()
+        return response.json()["ready"]
 
 
 # def request_logged_in(api_key: str) -> bool:
