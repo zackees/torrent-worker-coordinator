@@ -18,8 +18,6 @@ from torrent_worker_coordinator.torrent_manager import TorrentManager  # noqa: E
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
-PORT = 5023
-
 
 class ComplexAppTester(unittest.TestCase):
     """Example tester."""
@@ -32,7 +30,7 @@ class ComplexAppTester(unittest.TestCase):
 
     def test_purge_unattended(self) -> None:
         """Test the basic GET endpoint."""
-        with TestApp(PORT) as app:
+        with TestApp() as app:
 
             while app.ready() is False:
                 time.sleep(0.1)

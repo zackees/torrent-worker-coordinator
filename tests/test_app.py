@@ -17,15 +17,13 @@ from torrent_worker_coordinator.test.test_app import TestApp  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
-PORT = 4446
-
 
 class AppTester(unittest.TestCase):
     """Example tester."""
 
     def test_info(self) -> None:
         """Test the info endpoint returns version and ready status."""
-        with TestApp(PORT) as app:
+        with TestApp() as app:
             result = app.info()
             # self.assertIn("version", result)
             # self.assertIn("ready", result)
@@ -38,14 +36,14 @@ class AppTester(unittest.TestCase):
 
     def test_list_torrents(self) -> None:
         """Test retrieving the full torrent list."""
-        with TestApp(PORT + 1) as app:
+        with TestApp() as app:
             result = app.list_torrents()
             print(result)
             print()
 
     def test_ready(self) -> None:
         """Test the ready status endpoint."""
-        with TestApp(PORT + 2) as app:
+        with TestApp() as app:
             result = app.ready()
             print(result)
             print()
