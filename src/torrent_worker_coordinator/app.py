@@ -24,6 +24,7 @@ from torrent_worker_coordinator.models import TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
 from torrent_worker_coordinator.settings import (
     API_KEY,
+    BACKGROUND_WORKER_INTERVAL,
     GITHUB_REPO_URL,
     IS_TEST,
     S3_CREDENTIALS,
@@ -139,7 +140,8 @@ async def startup_event() -> None:
     log.info("Starting up torrent_worker_coordinator")
 
     # Start background task
-    asyncio.create_task(task_background(interval_seconds=60))
+    task = task_background(interval_seconds=BACKGROUND_WORKER_INTERVAL)  # type: ignore
+    asyncio.create_task(task)
 
     if SKIP_GITHUB_DOWNLOADS:
         log.info("Skipping downloads on startup")
