@@ -24,7 +24,12 @@ API_KEY = os.getenv("API_KEY", secrets.token_hex(16))
 
 GITHUB_REPO_URL = os.getenv("GITHUB_REPO_URL", None)
 SKIP_GITHUB_DOWNLOADS = os.environ.get("SKIP_GITHUB_DOWNLOADS", "0") == "1"
-BACKGROUND_WORKER_INTERVAL = float(os.getenv("BACKGROUND_WORKER_INTERVAL", 60 * 60 * 1))
+BACKGROUND_WORKER_INTERVAL = int(
+    os.getenv("BACKGROUND_WORKER_INTERVAL", 60)
+)  # Every 60 seconds run it.
+EXPIRE_TORRENT_WORKERS_AFTER = float(
+    os.getenv("EXPIRE_TORRENT_WORKERS_AFTER", 60 * 60 * 4)
+)  # They must make contact once every 4 hours.
 
 
 IS_RENDER_COM = False
