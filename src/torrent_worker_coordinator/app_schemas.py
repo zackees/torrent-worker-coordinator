@@ -52,4 +52,4 @@ class TorrentDownloadRequest(BaseModel):
 class TorrentListResponse(BaseModel):
     """Response body for listing torrents."""
 
-    torrents: dict
+    torrents: list[dict]
