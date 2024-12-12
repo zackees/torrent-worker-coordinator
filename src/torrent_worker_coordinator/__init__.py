@@ -2,7 +2,7 @@ from .app_schemas import InfoResponse, TorrentListResponse, TorrentResponse
 from .client import Client
 from .test.test_app import TestApp
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 
 class Api:
