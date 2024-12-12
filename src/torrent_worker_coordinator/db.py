@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from .models import TorrentManager, TorrentStatus
+from torrent_worker_coordinator.models import TorrentStatus
+from torrent_worker_coordinator.torrent_manager import TorrentManager
 
 
 def query_torrents_pending(db: Session) -> list:

@@ -4,7 +4,8 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from torrent_worker_coordinator.models import Base, TorrentManager, TorrentStatus
+from torrent_worker_coordinator.models import Base, TorrentStatus
+from torrent_worker_coordinator.torrent_manager import TorrentManager
 
 
 class TestTorrentManager(unittest.TestCase):

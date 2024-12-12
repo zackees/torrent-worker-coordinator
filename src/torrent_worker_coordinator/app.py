@@ -19,7 +19,7 @@ from fastapi.responses import (
 from pydantic import BaseModel
 
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
-from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
+from torrent_worker_coordinator.models import TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
 from torrent_worker_coordinator.settings import (
     API_KEY,
@@ -29,6 +29,7 @@ from torrent_worker_coordinator.settings import (
     SKIP_GITHUB_DOWNLOADS,
 )
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
+from torrent_worker_coordinator.torrent_manager import TorrentManager
 from torrent_worker_coordinator.version import VERSION
 
 just_fix_windows_console()

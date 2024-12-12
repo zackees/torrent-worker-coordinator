@@ -12,11 +12,12 @@ environ = {
 os.environ.update(environ)
 # isort: on
 
-from torrent_worker_coordinator.models import TorrentManager, get_db  # noqa: E402
+from torrent_worker_coordinator.models import get_db  # noqa: E402
 from torrent_worker_coordinator.paths import PROJECT_ROOT  # noqa: E402
 from torrent_worker_coordinator.task_populate_torrents import (  # noqa: E402
     sync_task_populate_torrents,
 )
+from torrent_worker_coordinator.torrent_manager import TorrentManager  # noqa: E402
 
 
 class TestPopulateTorrents(unittest.TestCase):
