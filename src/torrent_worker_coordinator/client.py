@@ -66,7 +66,7 @@ class Client:
         json = response.json()
         return TorrentListResponse(**json).torrents
 
-    def take_torrent(self, torrent_name: str, worker_name: str) -> TorrentResponse:
+    def take_torrent(self, worker_name: str, torrent_name: str) -> TorrentResponse:
         """Test the take endpoint."""
         headers = {
             "accept": "application/json",
