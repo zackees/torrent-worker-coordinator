@@ -6,6 +6,15 @@ from pathlib import Path
 from torrent_worker_coordinator.asyncwrap import asyncwrap
 
 
+def _exec(cmd: str) -> int:
+    """Execute a command in the shell.
+
+    Args:
+        cmd: Command to execute
+    """
+    return subprocess.run(cmd, shell=True).returncode
+
+
 def _clone_repository(path: Path, repo_url: str) -> None:
     """Clone the repository to the given path.
 
@@ -31,28 +40,28 @@ def _clone_repository(path: Path, repo_url: str) -> None:
         # os.chdir(slug)
         print(f"Now at {Path.cwd().resolve()}")
         print("Initializing git repository...")
-        os.system("git init")
+        _exec("git init")
         print(f"Adding remote origin {repo_url}")
-        os.system(f"git remote add origin {repo_url}")
+        _exec(f"git remote add origin {repo_url}")
         retries = 100
         for i in range(retries):
             print(f"git fetch origin, attempt {i + 1}/{retries}")
-            rtn = os.system("git fetch origin")
+            rtn = _exec("git fetch origin")
             if rtn == 0:
                 break
 
         print("git reset --hard origin/main")
-        rtn = os.system("git reset --hard origin/main")
+        rtn = _exec("git reset --hard origin/main")
         if rtn != 0:
             print(f"Failed to clone repository: {slug}")
             raise RuntimeError("Failed to clone repository")
 
         print("Setting up upstream tracking...")
-        rtn = os.system("git branch --set-upstream-to=origin/main main")
+        rtn = _exec("git branch --set-upstream-to=origin/main main")
         if rtn != 0:
             # Create main branch first if it doesn't exist
-            os.system("git checkout -b main")
-            rtn = os.system("git branch --set-upstream-to=origin/main main")
+            _exec("git checkout -b main")
+            rtn = _exec("git branch --set-upstream-to=origin/main main")
             if rtn != 0:
                 print("Failed to set upstream tracking branch")
                 raise RuntimeError("Failed to set upstream tracking branch")
