@@ -352,15 +352,14 @@ async def route_torrent_list_pending(
         out: list[TorrentResponse] = []
         for t in torrents:
             tr = TorrentResponse(**t.to_dict())
-            if request.filter_by_worker_name:
-                if tr.worker_id != request.filter_by_worker_name:
-                    continue
             out.append(tr)
         return TorrentListResponse(torrents=out)
 
 
 @app.post("/torrent/list/active", response_model=TorrentListResponse)
-async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> TorrentListResponse:
+async def route_torrent_list_active(
+    request: TorrentListPendingRequest, api_key: str = ApiKeyHeader
+) -> TorrentListResponse:
     """Get a list of active torrents."""
     if not is_authenticated(api_key):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore

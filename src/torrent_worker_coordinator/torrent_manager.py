@@ -47,17 +47,19 @@ class TorrentManager:
 
     @staticmethod
     def get_torrents_by_status(
-        db: Session, status: TorrentStatus, order_by_oldest: bool = False
+        db: Session,
+        status: TorrentStatus,
+        order_by_oldest: bool = False,
+        filter_by_worker_name: str | None = None,
     ) -> list[Torrent]:
         """Get torrents by status."""
+        q = db.query(Torrent).filter(Torrent.status == status)
+        if filter_by_worker_name:
+            q = q.filter(Torrent.worker_id == filter_by_worker_name)
         if order_by_oldest:
-            return (
-                db.query(Torrent)
-                .filter(Torrent.status == status)
-                .order_by(Torrent.updated_at)
-                .all()
-            )
-        return db.query(Torrent).filter(Torrent.status == status).all()
+            q = q.order_by(Torrent.updated_at)
+        out = q.all()
+        return out
 
     @staticmethod
     def recycle_unattended_torrents(db: Session, max_age: float) -> None:
