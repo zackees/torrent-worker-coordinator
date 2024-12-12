@@ -47,7 +47,21 @@ class ComplexAppTester(unittest.TestCase):
             print(out)
             self.assertTrue(out.name == "test.torrent")
 
-            torrents = app.list_active_torrents()
+            torrents = app.list_active_torrents(filter_by_worker_name="test_worker")
+            self.assertEqual(
+                1,
+                len(torrents),
+                f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
+            )
+
+            torrents = app.list_active_torrents(
+                filter_by_worker_name="sfdsfsdfsdfsdfsd"
+            )
+            self.assertEqual(
+                0,
+                len(torrents),
+                f"Expected 0 torrents, got {len(torrents)}, which was {torrents}",
+            )
 
             torrents = app.list_torrents()
             self.assertEqual(
