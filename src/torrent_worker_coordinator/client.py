@@ -57,16 +57,16 @@ class Client:
         json = response.json()
         return json
 
-    def get_download(self, endpoint: str, params: dict | None = None) -> bytes:
+    def download(self, endpoint: str, json: dict | None = None) -> bytes:
         headers = {
             "accept": "application/x-bittorrent",
             "api-key": self.api_key,
         }
-        response = httpx.get(
+        response = httpx.post(
             endpoint,
             headers=headers,
             timeout=TIMEOUT,
-            params=params,
+            json=json,
         )
         response.raise_for_status()
         return response.content
@@ -126,20 +126,26 @@ class Client:
 
     def download_torrent(self, torrent_name: str) -> bytes:
         """Test the torrent download endpoint."""
-        headers = {
-            "accept": "application/x-bittorrent",
-            "api-key": self.api_key,
-        }
-        json = {"torrent_name": torrent_name}
-        url = self._make_endpoint("torrent/download")
-        response = httpx.post(
-            url,
-            headers=headers,
-            json=json,
-            timeout=TIMEOUT,
+        # headers = {
+        #     "accept": "application/x-bittorrent",
+        #     "api-key": self.api_key,
+        # }
+        # json = {"torrent_name": torrent_name}
+        # url = self._make_endpoint("torrent/download")
+        # response = httpx.post(
+        #     url,
+        #     headers=headers,
+        #     json=json,
+        #     timeout=TIMEOUT,
+        # )
+        # response.raise_for_status()
+        # return response.content
+
+        out = self.download(
+            self._make_endpoint("torrent/download"),
+            {"torrent_name": torrent_name},
         )
-        response.raise_for_status()
-        return response.content
+        return out
 
     def set_torrent_complete(
         self, torrent_name: str, worker_name: str
