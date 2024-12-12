@@ -1,13 +1,14 @@
-# isort: off
 import os  # noqa: E402
-
-environ = {
-    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-    "DB_URL": "sqlite:///.cache/test_app_complex.db",
-}
-os.environ.update(environ)
 import time  # noqa: E402
 import unittest  # noqa: E402
+
+# isort: off
+environ = {
+    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+    "DB_URL": "sqlite:///memory",
+}
+os.environ.update(environ)
+# isort: on
 
 from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_ready,
@@ -15,9 +16,6 @@ from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     run_server_in_thread,
 )
 from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
-
-# isort: on
-
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 

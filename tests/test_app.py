@@ -5,7 +5,7 @@ import unittest
 os.environ.update(
     {
         "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///.cache/test2.db",
+        "DB_URL": "sqlite:///memory",
     }
 )
 # isort: on

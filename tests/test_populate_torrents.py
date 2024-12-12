@@ -6,7 +6,7 @@ from pathlib import Path
 os.environ.update(
     {
         "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///.cache/test4.db",
+        "DB_URL": "sqlite:///memory",
     }
 )
 # isort: on
