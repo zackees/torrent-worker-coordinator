@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -58,6 +58,20 @@ class TorrentManager:
                 .all()
             )
         return db.query(Torrent).filter(Torrent.status == status).all()
+
+    @staticmethod
+    def recycle_unattended_torrents(db: Session, max_age: int) -> None:
+        """Purge unattended torrents."""
+        oldest_allowed = datetime.utcnow() - timedelta(seconds=max_age)
+        db.query(Torrent).filter(Torrent.status == TorrentStatus.ACTIVE).filter(
+            Torrent.last_update < oldest_allowed
+            if oldest_allowed is not None
+            else False
+        ).update(
+            {"status": TorrentStatus.PENDING, "worker_id": None},
+            synchronize_session=False,
+        )
+        db.commit()
 
     @staticmethod
     def take_torrent(db: Session, name: str, worker_name: str) -> Optional[Torrent]:

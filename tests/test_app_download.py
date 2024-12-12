@@ -12,13 +12,12 @@ environ = {
 os.environ.update(environ)
 # isort: on
 
-from torrent_worker_coordinator.models import get_db  # noqa: E402
+from torrent_worker_coordinator.app_schemas import TorrentResponse  # noqa: E402
 from torrent_worker_coordinator.test.test_app import TestApp  # noqa: E402
-from torrent_worker_coordinator.torrent_manager import TorrentManager  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
-PORT = 5023
+PORT = 5053
 
 
 class ComplexAppTester(unittest.TestCase):
@@ -30,7 +29,8 @@ class ComplexAppTester(unittest.TestCase):
         if IS_RENDER:
             return  # don't delete the data store while running on render.com
 
-    def test_purge_unattended(self) -> None:
+    @unittest.skipIf(IS_RENDER, "Why is this running on render?")
+    def test_download_cycle(self) -> None:
         """Test the basic GET endpoint."""
         with TestApp(PORT) as app:
 
@@ -43,21 +43,37 @@ class ComplexAppTester(unittest.TestCase):
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            app.take_torrent(torrent_name="test.torrent", worker_name="test_worker")
-            # update it to 50% progress
-            torrent = app.update_torrent("test_worker", "test.torrent", 50)
-
-            with get_db() as db:
-                TorrentManager.recycle_unattended_torrents(db, max_age=0)
+            out: TorrentResponse = app.take_torrent(
+                torrent_name="test.torrent", worker_name="test_worker"
+            )
+            print(out)
+            self.assertTrue(out.name == "test.torrent")
 
             torrents = app.list_torrents()
             self.assertEqual(
                 1,
                 len(torrents),
-                f"Expected 0 torrents, got {len(torrents)}, which was {torrents}",
+                f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
             torrent = torrents[0]
-            self.assertTrue(torrent.status == "pending")
+            name = torrent.name
+            status = torrent.status
+            self.assertEqual("test.torrent", name)
+            self.assertEqual("active", status)
+
+            torrent = app.update_torrent(
+                worker_name="test_worker", torrent_name="test.torrent", progress=50
+            )
+            self.assertEqual(50, torrent.progress)
+
+            out = app.set_torrent_complete(
+                torrent_name="test.torrent", worker_name="test_worker"
+            )
+
+            torrent_bytes = app.download_torrent(torrent_name="test.torrent")
+            self.assertIsNotNone(torrent_bytes)
+            pending_torrents = app.list_pending_torrents()
+            self.assertEqual(0, len(pending_torrents))
 
 
 if __name__ == "__main__":
