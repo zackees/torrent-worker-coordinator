@@ -62,6 +62,7 @@ class ComplexAppTester(unittest.TestCase):
             out = app.request_torrent_complete(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
+
             print(out)
             print()
 

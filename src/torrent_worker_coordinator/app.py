@@ -17,8 +17,16 @@ from fastapi.responses import (
     PlainTextResponse,
     RedirectResponse,
 )
-from pydantic import BaseModel
 
+from torrent_worker_coordinator.app_schemas import (
+    TorrentCompleteRequest,
+    TorrentDownloadRequest,
+    TorrentErrorRequest,
+    TorrentInfoRequest,
+    TorrentListPendingRequest,
+    TorrentTakeRequest,
+    TorrentUpdateRequest,
+)
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentStatus, get_db
 from torrent_worker_coordinator.paths import GITHUB_REPO_PATH, TORRENTS_PATH
@@ -82,48 +90,6 @@ if IS_TEST:
     ApiKeyHeader = Header(None)
 else:
     ApiKeyHeader = Header(...)
-
-
-class TorrentInfoRequest(BaseModel):
-    """Request parameters for torrent info."""
-
-    torrent_name: str
-
-
-class TorrentCompleteRequest(BaseModel):
-    """Request parameters for torrent completion."""
-
-    torrent_name: str
-    worker_name: str
-
-
-class TorrentErrorRequest(BaseModel):
-    """Request parameters for torrent error."""
-
-    name: str
-    error_message: str
-
-
-class TorrentUpdateRequest(BaseModel):
-    """Request parameters for torrent update."""
-
-    torrent_name: str
-    worker_name: str
-    progress: int
-    status_message: str
-
-
-class TorrentTakeRequest(BaseModel):
-    """Request body for taking a torrent."""
-
-    worker_name: str
-    torrent_name: str
-
-
-class TorrentListPendingRequest(BaseModel):
-    """Request parameters for torrent info."""
-
-    order_by_oldest: bool
 
 
 def is_authenticated(api_key: str | None) -> bool:
@@ -234,12 +200,6 @@ async def route_torrent_info(
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
 
         return JSONResponse(torrent.to_dict())
-
-
-class TorrentDownloadRequest(BaseModel):
-    """Request body for taking a torrent."""
-
-    torrent_name: str
 
 
 @app.get("/torrent/download")
