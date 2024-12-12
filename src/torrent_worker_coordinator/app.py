@@ -4,6 +4,7 @@
 
 import asyncio
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 from hmac import compare_digest
 
@@ -64,6 +65,32 @@ def _version() -> str:
     return __version__
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
+    global READY
+    global GITHUB_DOWNLOADED
+    _ = get_db()  # invoke to create the database
+    log.info("Starting up torrent_worker_coordinator")
+
+    # Start background task
+    task = task_background(interval_seconds=BACKGROUND_WORKER_INTERVAL)  # type: ignore
+    asyncio.create_task(task)
+
+    if SKIP_GITHUB_DOWNLOADS:
+        log.info("Skipping downloads on startup")
+    elif GITHUB_REPO_URL is None:
+        log.info("No github repo specified")
+    else:
+        log.info("Downloading github repos")
+        await task_populate_torrents(
+            repo_url=GITHUB_REPO_URL, path=GITHUB_REPO_PATH, torrents_path=TORRENTS_PATH
+        )
+        GITHUB_DOWNLOADED = True
+    READY = True
+    yield
+
+
 def app_description() -> str:
     """Get the app description."""
     lines = []
@@ -79,6 +106,7 @@ def app_description() -> str:
 
 app = FastAPI(
     title=APP_DISPLAY_NAME,
+    lifespan=lifespan,
     version=_version(),
     redoc_url=None,
     license_info={
@@ -111,32 +139,6 @@ def is_authenticated(api_key: str | None) -> bool:
     if not out:
         log.warning("Invalid API key attempted: %s", api_key)
     return out
-
-
-# on startup
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Startup event."""
-    global READY
-    global GITHUB_DOWNLOADED
-    _ = get_db()  # invoke to create the database
-    log.info("Starting up torrent_worker_coordinator")
-
-    # Start background task
-    task = task_background(interval_seconds=BACKGROUND_WORKER_INTERVAL)  # type: ignore
-    asyncio.create_task(task)
-
-    if SKIP_GITHUB_DOWNLOADS:
-        log.info("Skipping downloads on startup")
-    elif GITHUB_REPO_URL is None:
-        log.info("No github repo specified")
-    else:
-        log.info("Downloading github repos")
-        await task_populate_torrents(
-            repo_url=GITHUB_REPO_URL, path=GITHUB_REPO_PATH, torrents_path=TORRENTS_PATH
-        )
-        GITHUB_DOWNLOADED = True
-    READY = True
 
 
 @app.get("/", include_in_schema=False)
