@@ -29,5 +29,5 @@ async def task_background(interval_seconds: int = 60) -> None:
     """
     log.info("Starting background task with %d second interval", interval_seconds)
     while True:
-        await _background_iteration()
         await asyncio.sleep(interval_seconds)
+        await _background_iteration()
