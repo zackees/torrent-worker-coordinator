@@ -3,16 +3,7 @@ import time  # noqa: E402
 import unittest  # noqa: E402
 from tempfile import NamedTemporaryFile  # noqa: E402
 
-
-def make_port(string_to_hash: str) -> int:
-    """Make a port number from a string."""
-    # return int(crypt.crypt(string_to_hash, "salt")[0:5])  // this isn't right
-    hash_value = hash(string_to_hash)
-    return int(str(hash_value)[1:6])
-
-
 # isort: off
-PORT = make_port(__file__)
 URL = f"sqlite:///{NamedTemporaryFile().name}"
 environ = {
     "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
