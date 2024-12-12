@@ -74,6 +74,8 @@ class ComplexAppTester(unittest.TestCase):
             self.assertIsNotNone(torrent_bytes)
             pending_torrents = app.list_pending_torrents()
             self.assertEqual(0, len(pending_torrents))
+            completed_torrents = app.list_completed_torrents()
+            self.assertEqual(1, len(completed_torrents))
 
 
 if __name__ == "__main__":

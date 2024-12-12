@@ -53,6 +53,7 @@ class ComplexAppTester(unittest.TestCase):
                 self.assertEqual(1, len(torrents))
                 torrent = torrents[0]
                 self.assertTrue(torrent.status == "active")
+                # recycle all torrents
                 TorrentManager.recycle_unattended_torrents(db, max_age=0)
                 torrents = app.list_torrents()
                 self.assertEqual(1, len(torrents))
