@@ -99,39 +99,6 @@ def run_server_in_thread(host: str, port: int):
         thread.join()
 
 
-from disklru import DiskLRUCache
-
-from .paths import PORT_DB
-
-DISKLRU = DiskLRUCache(str(PORT_DB), 99)
-
-
-def _make_port() -> int:
-    """Go into the database and get the port, we will increment by one each time."""
-    PORT_BASE = 4444
-    prev_value: str | None = DISKLRU.get("port")
-    while True:
-        if prev_value is None:
-            new_value = PORT_BASE
-        else:
-            new_value = int(prev_value) + 1
-        if new_value > 4490:
-            new_value = PORT_BASE  # recycle ports
-        success, old_value = DISKLRU.compare_and_swap(
-            "port", prev_value, str(new_value)
-        )
-        if success:
-            import warnings
-
-            # print("Returning port:", new_value)
-            warnings.warn(f"Returning port: {new_value}")
-            return new_value
-        prev_value = old_value
-        import time
-
-        time.sleep(0.01)
-
-
 class TestApp:
     __test__ = False  # Prevent discovery
 

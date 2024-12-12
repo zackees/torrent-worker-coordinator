@@ -9,4 +9,3 @@ colorama
 sqlalchemy
 httpx
 torrent-worker>=1.0.1
-diskLRU>=2.0.3
