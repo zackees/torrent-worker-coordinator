@@ -4,10 +4,14 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile  # noqa: E402
 
 # isort: off
+HERE = Path(__file__).parent
+PROJECT_ROOT = HERE.parent
+
 URL = f"sqlite:///{NamedTemporaryFile().name}"
 environ = {
     "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
     "DB_URL": URL,
+    "DATA_DIR": str(PROJECT_ROOT / ".cache" / "4"),
 }
 os.environ.update(environ)
 # isort: on

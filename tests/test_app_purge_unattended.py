@@ -1,13 +1,17 @@
 import os  # noqa: E402
 import time  # noqa: E402
 import unittest  # noqa: E402
+from pathlib import Path
 from tempfile import NamedTemporaryFile  # noqa: E402
 
 # isort: off
+HERE = Path(__file__).parent
+PROJECT_ROOT = HERE.parent
 URL = f"sqlite:///{NamedTemporaryFile().name}"
 environ = {
     "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
     "DB_URL": URL,
+    "DATA_DIR": str(PROJECT_ROOT / ".cache" / "2"),
 }
 os.environ.update(environ)
 # isort: on
@@ -37,26 +41,28 @@ class ComplexAppTester(unittest.TestCase):
 
             torrents = app.list_torrents()
             self.assertEqual(
-                1,
+                3,
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            app.take_torrent(torrent_name="test.torrent", worker_name="test_worker")
+            app.take_torrent(torrent_name="folder.torrent", worker_name="test_worker")
             # update it to 50% progress
-            torrent = app.update_torrent("test_worker", "test.torrent", 50)
+            torrent = app.update_torrent("test_worker", "folder.torrent", 50)
 
             with get_db() as db:
                 TorrentManager.recycle_unattended_torrents(db, max_age=1)
                 torrents = app.list_torrents()
+                self.assertEqual(3, len(torrents))
+                torrents = app.list_active_torrents(filter_by_worker_name="test_worker")
                 self.assertEqual(1, len(torrents))
                 torrent = torrents[0]
                 self.assertTrue(torrent.status == "active")
                 # recycle all torrents
                 TorrentManager.recycle_unattended_torrents(db, max_age=0)
                 torrents = app.list_torrents()
-                self.assertEqual(1, len(torrents))
-                torrent = torrents[0]
-                self.assertTrue(torrent.status == "pending")
+                self.assertEqual(3, len(torrents))
+                for t in torrents:
+                    self.assertTrue(t.status == "pending")
 
 
 if __name__ == "__main__":
