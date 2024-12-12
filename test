@@ -4,4 +4,4 @@ set -e
 . ./activate
 pip install -e .
 # uv pip sync pyproject.toml
-pytest -s tests -v -n auto
+pytest -s tests -vv -n auto

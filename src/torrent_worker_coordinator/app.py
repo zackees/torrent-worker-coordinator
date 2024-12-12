@@ -45,7 +45,6 @@ from torrent_worker_coordinator.settings import (
 from torrent_worker_coordinator.task_background import task_background
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
 from torrent_worker_coordinator.torrent_manager import TorrentManager
-from torrent_worker_coordinator.version import VERSION
 
 just_fix_windows_console()
 
@@ -59,10 +58,16 @@ READY = False
 GITHUB_DOWNLOADED = False
 
 
+def _version() -> str:
+    from torrent_worker_coordinator import __version__
+
+    return __version__
+
+
 def app_description() -> str:
     """Get the app description."""
     lines = []
-    lines.append("  * Version: " + VERSION)
+    lines.append("  * Version: " + _version())
     lines.append("  * Started at: " + STARTUP_DATETIME.isoformat() + " UTC")
     if IS_TEST:
         lines.append("  * Running in TEST mode")
@@ -74,7 +79,7 @@ def app_description() -> str:
 
 app = FastAPI(
     title=APP_DISPLAY_NAME,
-    version=VERSION,
+    version=_version(),
     redoc_url=None,
     license_info={
         "name": "Private program, do not distribute",
@@ -172,7 +177,7 @@ async def route_info(api_key: str = ApiKeyHeader) -> InfoResponse:
 
     try:
         out = InfoResponse(
-            version=VERSION,
+            version=_version(),
             startup_time=STARTUP_DATETIME.isoformat(),
             mode="TEST" if IS_TEST else "PRODUCTION",
             app_name=APP_DISPLAY_NAME,
