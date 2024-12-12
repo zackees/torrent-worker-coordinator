@@ -184,6 +184,7 @@ def make_port(string_to_hash: str) -> int:
 
 
 class TestApp:
+    __test__ = False  # Prevent discovery
 
     def __init__(self, api_key: str = API_KEY) -> None:
         caller = sys._getframe(1)
