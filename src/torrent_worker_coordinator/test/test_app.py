@@ -23,9 +23,11 @@ def _get_next_port() -> int:
 class TestApp(Client):
     __test__ = False  # Prevent discovery
 
-    def __init__(self, api_key: str = API_KEY) -> None:
-        super().__init__(host="localhost", port=_get_next_port(), api_key=api_key)
-        self.api_key = api_key
+    def __init__(self, api_key: str | None = None) -> None:
+        super().__init__(
+            host="localhost", port=_get_next_port(), api_key=api_key or API_KEY
+        )
+        self.api_key = api_key or API_KEY
         self.server_context = None
 
     def __enter__(self):

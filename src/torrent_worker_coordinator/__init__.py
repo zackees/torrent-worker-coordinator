@@ -16,7 +16,7 @@ class Api:
 class Test:
     @staticmethod
     def app(
-        api_key: str,
+        api_key: str | None = None,
     ) -> TestApp:
         app = TestApp(api_key=api_key)
         return app
