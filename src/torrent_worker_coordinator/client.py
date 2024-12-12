@@ -172,7 +172,8 @@ class Client:
 
     def list_active_torrents(self) -> list[TorrentResponse]:
         """Test the active torrents list endpoint."""
-        json = self.get_json("torrent/list/active")
+        url = self._make_endpoint("torrent/list/active")
+        json = self._post_json(url, {})
         return TorrentListResponse(**json).torrents
 
     def list_completed_torrents(self) -> list[TorrentResponse]:

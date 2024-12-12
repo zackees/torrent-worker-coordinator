@@ -47,6 +47,8 @@ class ComplexAppTester(unittest.TestCase):
             print(out)
             self.assertTrue(out.name == "test.torrent")
 
+            torrents = app.list_active_torrents()
+
             torrents = app.list_torrents()
             self.assertEqual(
                 1,
