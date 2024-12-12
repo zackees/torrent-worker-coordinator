@@ -193,7 +193,7 @@ async def route_info(api_key: str = ApiKeyHeader) -> InfoResponse:
         raise
 
 
-@app.get("/torrent/info")
+@app.post("/torrent/info")
 async def route_torrent_info(
     request: TorrentInfoRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
@@ -320,7 +320,7 @@ async def route_torrent_update(
         return out
 
 
-@app.get("/torrent/list/all", response_model=TorrentListResponse)
+@app.post("/torrent/list/all", response_model=TorrentListResponse)
 async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> TorrentListResponse:
     """Get a list of all torrents."""
     if not is_authenticated(api_key):
@@ -360,7 +360,7 @@ async def route_torrent_list_pending(
         return TorrentListResponse(torrents=[t.to_dict() for t in torrents])
 
 
-@app.get("/torrent/list/active", response_model=TorrentListResponse)
+@app.post("/torrent/list/active", response_model=TorrentListResponse)
 async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> TorrentListResponse:
     """Get a list of active torrents."""
     if not is_authenticated(api_key):
@@ -371,7 +371,7 @@ async def route_torrent_list_active(api_key: str = ApiKeyHeader) -> TorrentListR
         return TorrentListResponse(torrents=[t.to_dict() for t in torrents])
 
 
-@app.get("/torrent/list/completed", response_model=TorrentListResponse)
+@app.post("/torrent/list/completed", response_model=TorrentListResponse)
 async def route_torrent_list_completed(
     api_key: str = ApiKeyHeader,
 ) -> TorrentListResponse:
