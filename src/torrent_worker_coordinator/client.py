@@ -42,7 +42,7 @@ class Client:
             host = f"http://{self.host}:{self.port}"
         return f"{host}/{path}"
 
-    def post_json(self, endpoint: str, json: dict) -> dict:
+    def _post_json(self, endpoint: str, json: dict) -> dict:
         headers = {
             "accept": "application/json",
             "api-key": self.api_key,
@@ -57,7 +57,7 @@ class Client:
         json = response.json()
         return json
 
-    def download(self, endpoint: str, json: dict | None = None) -> bytes:
+    def _download(self, endpoint: str, json: dict | None = None) -> bytes:
         headers = {
             "accept": "application/x-bittorrent",
             "api-key": self.api_key,
@@ -78,14 +78,14 @@ class Client:
 
     def list_torrents(self) -> list[TorrentResponse]:
         """Test the list_all endpoint."""
-        json = self.post_json(self.endpoint_list_torrents, {})
+        json = self._post_json(self.endpoint_list_torrents, {})
         return TorrentListResponse(**json).torrents
 
     def take_torrent(self, worker_name: str, torrent_name: str) -> TorrentResponse:
         """Test the take endpoint."""
         url = self.endpoint_torrent_take
         body = {"worker_name": worker_name, "torrent_name": torrent_name}
-        json = self.post_json(
+        json = self._post_json(
             url,
             body,
         )
@@ -118,12 +118,12 @@ class Client:
 
     def torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
-        json = self.post_json(self._make_endpoint("torrent/info"), {"name": name})
+        json = self._post_json(self._make_endpoint("torrent/info"), {"name": name})
         return TorrentResponse(**json)
 
     def download_torrent(self, torrent_name: str) -> bytes:
         """Test the torrent download endpoint."""
-        out = self.download(
+        out = self._download(
             self._make_endpoint("torrent/download"),
             {"torrent_name": torrent_name},
         )
@@ -133,7 +133,7 @@ class Client:
         self, torrent_name: str, worker_name: str
     ) -> TorrentResponse:
         """Test the torrent complete endpoint."""
-        json = self.post_json(
+        json = self._post_json(
             self._make_endpoint("torrent/complete"),
             {"torrent_name": torrent_name, "worker_name": worker_name},
         )
@@ -141,7 +141,7 @@ class Client:
 
     def set_torrent_error(self, name: str, error_message: str) -> dict:
         """Test the torrent error endpoint."""
-        json = self.post_json(
+        json = self._post_json(
             self._make_endpoint("torrent/error"),
             {"name": name, "error_message": error_message},
         )
@@ -151,7 +151,7 @@ class Client:
         self, worker_name: str, torrent_name: str, progress: int
     ) -> TorrentResponse:
         """Test the torrent update endpoint."""
-        out = self.post_json(
+        out = self._post_json(
             self._make_endpoint("torrent/update"),
             {
                 "torrent_name": torrent_name,
@@ -165,7 +165,7 @@ class Client:
         self, order_by_oldest: bool = True
     ) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
-        json = self.post_json(
+        json = self._post_json(
             self._make_endpoint("torrent/list/pending"),
             {"order_by_oldest": order_by_oldest},
         )
@@ -179,5 +179,5 @@ class Client:
     def list_completed_torrents(self) -> list[TorrentResponse]:
         """Test the completed torrents list endpoint."""
         url = self._make_endpoint("torrent/list/completed")
-        json = self.post_json(url, {})
+        json = self._post_json(url, {})
         return TorrentListResponse(**json).torrents

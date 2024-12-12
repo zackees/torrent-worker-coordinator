@@ -12,7 +12,7 @@ license = { text = "BSD 3-Clause License" }
 classifiers = ["Programming Language :: Python :: 3"]
 dynamic = ["dependencies"]
 # Change this with the version number bump.
-version = "1.0.3"
+version = "1.0.4"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
