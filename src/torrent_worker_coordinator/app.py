@@ -349,7 +349,14 @@ async def route_torrent_list_pending(
         torrents = TorrentManager.get_torrents_by_status(
             db, TorrentStatus.PENDING, order_by_oldest=request.order_by_oldest
         )
-        return TorrentListResponse(torrents=[t.to_dict() for t in torrents])
+        out: list[TorrentResponse] = []
+        for t in torrents:
+            tr = TorrentResponse(**t.to_dict())
+            if request.filter_by_worker_name:
+                if tr.worker_id != request.filter_by_worker_name:
+                    continue
+            out.append(tr)
+        return TorrentListResponse(torrents=out)
 
 
 @app.post("/torrent/list/active", response_model=TorrentListResponse)

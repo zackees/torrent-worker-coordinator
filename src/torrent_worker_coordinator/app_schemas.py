@@ -40,6 +40,7 @@ class TorrentListPendingRequest(BaseModel):
     """Request parameters for torrent info."""
 
     order_by_oldest: bool
+    filter_by_worker_name: str | None = None
 
 
 class TorrentDownloadRequest(BaseModel):
