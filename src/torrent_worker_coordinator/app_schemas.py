@@ -47,3 +47,9 @@ class TorrentDownloadRequest(BaseModel):
     """Request body for taking a torrent."""
 
     torrent_name: str
+
+
+class TorrentListResponse(BaseModel):
+    """Response body for listing torrents."""
+
+    torrents: dict
