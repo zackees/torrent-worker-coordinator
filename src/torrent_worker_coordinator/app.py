@@ -163,14 +163,6 @@ async def ready() -> JSONResponse:
     return JSONResponse({"ready": READY})
 
 
-@app.get("/protected")
-async def protected_route(api_key: str = ApiKeyHeader) -> JSONResponse:
-    """TODO - Add description."""
-    if not is_authenticated(api_key):
-        return JSONResponse("Not authenticated", status_code=401)
-    return JSONResponse("Authenticated")
-
-
 @app.get("/info", response_model=InfoResponse)
 async def route_info(api_key: str = ApiKeyHeader) -> InfoResponse:
     """Returns information about the service including version, startup time, and runtime mode."""
