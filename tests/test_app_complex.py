@@ -49,7 +49,9 @@ class ComplexAppTester(unittest.TestCase):
                 print(torrent)
             print()
 
-            out = request_torrent_take(API_KEY, torrent_name="test.torrent")
+            out = request_torrent_take(
+                API_KEY, torrent_name="test.torrent", worker_name="test_worker"
+            )
             print(out)
 
 

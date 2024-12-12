@@ -213,7 +213,7 @@ async def route_torrent_download(
 class TorrentTakeRequest(BaseModel):
     """Request body for taking a torrent."""
 
-    worker_id: str
+    worker_name: str
 
 
 @app.post("/torrent/{name}/take")
@@ -226,7 +226,7 @@ async def route_torrent_take(
 
     # db = get_db()
     with get_db() as db:
-        torrent = TorrentManager.take_torrent(db, name, request.worker_id)
+        torrent = TorrentManager.take_torrent(db, name, request.worker_name)
         if not torrent:
             return JSONResponse(
                 {"error": "Torrent not found or already taken"}, status_code=404
