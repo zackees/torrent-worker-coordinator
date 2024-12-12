@@ -76,11 +76,12 @@ class TestTorrentManager(unittest.TestCase):
             "test_torrent",
             TorrentStatus.ACTIVE,
             progress=50,
-            last_update="Processing...",
         )
         self.assertEqual(updated.status, TorrentStatus.ACTIVE)
         self.assertEqual(updated.progress, 50)
-        self.assertEqual(updated.last_update, "Processing...")
+        # self.assertEqual(updated.last_update, "Processing...")
+        dt = datetime.fromisoformat(updated.last_update)
+        self.assertIsInstance(dt, datetime)
 
         # Update to completed
         completed = TorrentManager.update_torrent_status(

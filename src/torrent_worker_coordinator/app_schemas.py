@@ -17,7 +17,7 @@ class TorrentCompleteRequest(BaseModel):
 class TorrentErrorRequest(BaseModel):
     """Request parameters for torrent error."""
 
-    name: str
+    torrent_name: str
     error_message: str
 
 
@@ -27,7 +27,6 @@ class TorrentUpdateRequest(BaseModel):
     torrent_name: str
     worker_name: str
     progress: int
-    status_message: str
 
 
 class TorrentTakeRequest(BaseModel):

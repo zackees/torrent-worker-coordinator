@@ -157,8 +157,8 @@ class Client:
         return response.json()
 
     def update_torrent(
-        self, worker_name: str, torrent_name: str, progress: int, status_message: str
-    ) -> dict:
+        self, worker_name: str, torrent_name: str, progress: int
+    ) -> TorrentResponse:
         """Test the torrent update endpoint."""
         headers = {
             "accept": "application/json",
@@ -168,7 +168,6 @@ class Client:
             "torrent_name": torrent_name,
             "worker_name": worker_name,
             "progress": progress,
-            "status_message": status_message,
         }
         response = httpx.post(
             f"http://localhost:{self.port}/torrent/update",
@@ -177,7 +176,8 @@ class Client:
             timeout=TIMEOUT,
         )
         response.raise_for_status()
-        return response.json()
+        out = response.json()
+        return TorrentResponse(**out)
 
     def list_pending_torrents(
         self, order_by_oldest: bool = True

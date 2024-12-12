@@ -286,7 +286,10 @@ async def route_torrent_error(
 
     with get_db() as db:
         torrent = TorrentManager.update_torrent_status(
-            db, request.name, TorrentStatus.ERROR, error_message=request.error_message
+            db,
+            request.torrent_name,
+            TorrentStatus.ERROR,
+            error_message=request.error_message,
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)
@@ -306,9 +309,8 @@ async def route_torrent_update(
         torrent = TorrentManager.update_torrent_status(
             db,
             request.torrent_name,
-            TorrentStatus.ACTIVE,
+            None,
             progress=request.progress,
-            last_update=request.status_message,
         )
         if not torrent:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore

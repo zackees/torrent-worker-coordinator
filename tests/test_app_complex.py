@@ -61,6 +61,11 @@ class ComplexAppTester(unittest.TestCase):
             self.assertEqual("test.torrent", name)
             self.assertEqual("active", status)
 
+            torrent = app.update_torrent(
+                worker_name="test_worker", torrent_name="test.torrent", progress=50
+            )
+            self.assertEqual(50, torrent.progress)
+
             out = app.set_torrent_complete(
                 torrent_name="test.torrent", worker_name="test_worker"
             )

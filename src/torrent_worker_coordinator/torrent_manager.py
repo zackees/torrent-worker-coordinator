@@ -81,10 +81,9 @@ class TorrentManager:
     def update_torrent_status(
         db: Session,
         name: str,
-        status: TorrentStatus,
+        status: TorrentStatus | None,
         error_message: Optional[str] = None,
         progress: Optional[int] = None,
-        last_update: Optional[str] = None,
     ) -> Optional[Torrent]:
         """Update torrent status."""
         torrent = TorrentManager.get_torrent(db, name)
@@ -92,13 +91,14 @@ class TorrentManager:
             return None
 
         try:
-            setattr(torrent, "status", status)
+            if status is not None:
+                setattr(torrent, "status", status)
             if error_message is not None:
                 setattr(torrent, "error_message", error_message)
             if progress is not None:
                 setattr(torrent, "progress", progress)
-            if last_update is not None:
-                setattr(torrent, "last_update", last_update)
+            utcnow = datetime.utcnow()
+            setattr(torrent, "last_update", utcnow)
             if status == TorrentStatus.COMPLETED:
                 setattr(torrent, "completed_at", datetime.utcnow())
 
