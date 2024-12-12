@@ -8,7 +8,11 @@ Common code for integration tests.
 
 import httpx
 
-from torrent_worker_coordinator.app_schemas import TorrentListResponse, TorrentResponse
+from torrent_worker_coordinator.app_schemas import (
+    InfoResponse,
+    TorrentListResponse,
+    TorrentResponse,
+)
 from torrent_worker_coordinator.settings import API_KEY
 from torrent_worker_coordinator.test.run_server_in_thread import (
     TIMEOUT,
@@ -56,7 +60,7 @@ class TestApp:
         response = httpx.get(self.endpoint_protected, headers=headers, timeout=TIMEOUT)
         return response.json()
 
-    def request_info(self) -> dict[str, str]:
+    def request_info(self) -> InfoResponse:
         """Test the info endpoint."""
         headers = {
             "accept": "application/json",
@@ -64,7 +68,8 @@ class TestApp:
         }
         response = httpx.get(self.endpoint_info, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
-        return response.json()
+        json = response.json()
+        return InfoResponse(**json)
 
     def request_torrent_list_all(self) -> list[TorrentResponse]:
         """Test the list_all endpoint."""

@@ -41,8 +41,12 @@ class AppTester(unittest.TestCase):
         """Test the info endpoint returns version and ready status."""
         with TestApp(PORT + 2) as app:
             result = app.request_info()
-            self.assertIn("version", result)
-            self.assertIn("ready", result)
+            # self.assertIn("version", result)
+            # self.assertIn("ready", result)
+            version = result.version
+            ready = result.ready
+            self.assertIsNotNone(version)
+            self.assertTrue(ready)
             print(result)
             print()
 
