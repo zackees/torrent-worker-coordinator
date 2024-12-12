@@ -2,6 +2,7 @@
     app worker
 """
 
+import asyncio
 import os
 from datetime import datetime
 from hmac import compare_digest
@@ -28,6 +29,7 @@ from torrent_worker_coordinator.settings import (
     S3_CREDENTIALS,
     SKIP_GITHUB_DOWNLOADS,
 )
+from torrent_worker_coordinator.task_background import task_background
 from torrent_worker_coordinator.task_populate_torrents import task_populate_torrents
 from torrent_worker_coordinator.torrent_manager import TorrentManager
 from torrent_worker_coordinator.version import VERSION
@@ -135,6 +137,10 @@ async def startup_event() -> None:
     global GITHUB_DOWNLOADED
     _ = get_db()  # invoke to create the database
     log.info("Starting up torrent_worker_coordinator")
+
+    # Start background task
+    asyncio.create_task(task_background(interval_seconds=60))
+
     if SKIP_GITHUB_DOWNLOADS:
         log.info("Skipping downloads on startup")
     elif GITHUB_REPO_URL is None:
