@@ -14,28 +14,16 @@ from pathlib import Path
 
 import httpx
 import uvicorn
-
-# from androidmonitor_backend.testing.db_test_env import db_test_env_init
 from uvicorn.main import Config
 
 from torrent_worker_coordinator.settings import API_KEY
 
-# PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HERE = Path(__file__).parent
 PROJECT_ROOT = HERE.parent.parent
-
-# no androidmonitor_backend.* imports allowed
-
-
-# no androidmonitor_backend.* imports allowed
 
 # Change set the DB_URL environment variable to a temporary sqlite database.
 # This needs to be done before importing the app.
 HERE = Path(os.path.dirname(os.path.abspath(__file__)))
-
-# DB_URL = db_test_env_init()
-# os.environ["ALLOW_DB_CLEAR"] = "1"
-# os.environ["SHOW_DB_URL"] = "1"
 
 # if debugger is attached
 if sys.gettrace():
@@ -43,14 +31,6 @@ if sys.gettrace():
 else:
     TIMEOUT = 20  # seconds
 
-# # androidmonitor_backend.* allowed.
-# from androidmonitor_backend.settings import API_ADMIN_KEY, CLIENT_API_KEYS
-# from androidmonitor_backend.types import ClientLogQuery, DeviceInfo, LogInfo, UserQuery
-# from androidmonitor_backend.util import current_datetime
-
-# TEST_MP4 = os.path.join(HERE, "test.mp4")
-# TEST_JSON = os.path.join(HERE, "test.json")
-# TEST_V05_JSON = os.path.join(HERE, "test.v05.json")
 
 APP_NAME = "torrent_worker_coordinator.app:app"
 

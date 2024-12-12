@@ -13,7 +13,7 @@ os.environ.update(environ)
 # isort: on
 
 
-from torrent_worker_coordinator.integration_test_env import TestApp  # noqa: E402
+from torrent_worker_coordinator.test.app import TestApp  # noqa: E402
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
