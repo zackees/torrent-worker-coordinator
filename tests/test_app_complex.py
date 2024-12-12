@@ -1,15 +1,13 @@
-import os
-import time
-import unittest
-
 # isort: off
-os.environ.update(
-    {
-        "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
-        "DB_URL": "sqlite:///.cache/test_app_complex.db",
-    }
-)
+import os  # noqa: E402
 
+environ = {
+    "GITHUB_REPO_URL": "https://github.com/zackees/torrent-test",
+    "DB_URL": "sqlite:///.cache/test_app_complex.db",
+}
+os.environ.update(environ)
+import time  # noqa: E402
+import unittest  # noqa: E402
 
 from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_ready,
@@ -19,6 +17,7 @@ from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
 from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
 
 # isort: on
+
 
 IS_RENDER = any([key.startswith("RENDER_") for key in os.environ.keys()])
 
@@ -47,9 +46,12 @@ class ComplexAppTester(unittest.TestCase):
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
 
-            for torrent in torrents:
-                print(torrent)
-            print()
+            # for torrent in torrents:
+            #     print(torrent)
+            # print()
+
+            # out = request_torrent_take(API_KEY, "test.torrent")
+            # print(out)
 
 
 if __name__ == "__main__":

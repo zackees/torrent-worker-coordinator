@@ -355,11 +355,22 @@ async def route_torrent_list_completed(api_key: str = ApiKeyHeader) -> JSONRespo
 
 def main() -> None:
     """Start the app."""
+    import argparse
     import webbrowser  # pylint: disable=import-outside-toplevel
 
-    port = 8080
+    parser = argparse.ArgumentParser(
+        description="Start the torrent_worker_coordinator app"
+    )
+    parser.add_argument(
+        "--no-browser", action="store_true", help="Don't open the browser on startup"
+    )
+    parser.add_argument("--port", type=int, default=8080, help="Port to run the app on")
+    args = parser.parse_args()
 
-    webbrowser.open(f"http://localhost:{port}")
+    port = args.port
+
+    if not args.no_browser:
+        webbrowser.open(f"http://localhost:{port}")
     uvicorn.run(
         "torrent_worker_coordinator.app:app", host="localhost", port=port, reload=True
     )

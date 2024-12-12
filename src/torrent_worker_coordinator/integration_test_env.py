@@ -7,15 +7,22 @@ Common code for integration tests.
 
 import contextlib
 import os
+import subprocess
 import sys
 import threading
 import time
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import httpx
 import uvicorn
 
 # from androidmonitor_backend.testing.db_test_env import db_test_env_init
 from uvicorn.main import Config
+
+# PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HERE = Path(__file__).parent
+PROJECT_ROOT = HERE.parent.parent
 
 # no androidmonitor_backend.* imports allowed
 
@@ -24,7 +31,7 @@ from uvicorn.main import Config
 
 # Change set the DB_URL environment variable to a temporary sqlite database.
 # This needs to be done before importing the app.
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = Path(os.path.dirname(os.path.abspath(__file__)))
 
 # DB_URL = db_test_env_init()
 # os.environ["ALLOW_DB_CLEAR"] = "1"
@@ -41,7 +48,6 @@ else:
 # from androidmonitor_backend.types import ClientLogQuery, DeviceInfo, LogInfo, UserQuery
 # from androidmonitor_backend.util import current_datetime
 
-HERE = os.path.dirname(os.path.abspath(__file__))
 # TEST_MP4 = os.path.join(HERE, "test.mp4")
 # TEST_JSON = os.path.join(HERE, "test.json")
 # TEST_V05_JSON = os.path.join(HERE, "test.v05.json")
@@ -100,19 +106,26 @@ class ServerWithShutdown(uvicorn.Server):
 
 
 @contextlib.contextmanager
-def run_server_in_thread():
+def run_server_in_thread(env: dict[str, str] | None = None):
     """
     Useful for testing, this function brings up a server.
     It's a context manager so that it can be used in a with statement.
     """
+    dot_env = NamedTemporaryFile(mode="w", delete=False)
+    dot_env_str = (
+        "\n".join([f"{key}={value}" for key, value in env.items()]) if env else ""
+    )
+    dot_env.write(dot_env_str)
     config = Config(
         APP_NAME,
         host=HOST,
         port=PORT,
         log_level="info",
-        use_colors=False,
+        use_colors=True,
+        env_file=dot_env.name,
     )
     server = ServerWithShutdown(config=config)
+
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
     try:
@@ -128,6 +141,45 @@ def run_server_in_thread():
     finally:
         server.should_exit = True
         thread.join()
+        dot_env.close()
+
+
+@contextlib.contextmanager
+def run_server_in_process(env: dict[str, str]):
+    # DOESN"T WORK!!!!!
+    """
+    Useful for testing, this function brings up a server.
+    It's a context manager so that it can be used in a with statement.
+    """
+    # python_exe = sys.executable
+    # src\torrent_worker_coordinator\integration_test_process.py
+
+    from shutil import which
+
+    uv_exe = which("uv")
+    print("uv_exe:", uv_exe)
+
+    cmd_list = [
+        "/bin/bash",
+        "prod",
+    ]
+
+    cmd_str = subprocess.list2cmdline(cmd_list)
+    print("cmd_str:", cmd_str)
+
+    print("PROJECT_ROOT:", PROJECT_ROOT)
+    proc = subprocess.Popen(cmd_list, env=env, cwd=str(PROJECT_ROOT))
+    rtn = proc.poll()
+    if rtn is not None and rtn != 0:
+        raise RuntimeError(f"Failed to start server: return value was {rtn}")
+
+    try:
+        time.sleep(1)
+        yield
+        return
+    finally:
+        proc.terminate()
+        proc.wait()
 
 
 def request_get() -> dict:
@@ -164,6 +216,19 @@ def request_torrent_list_all(api_key: str) -> dict:
         "api-key": api_key,
     }
     response = httpx.get(ENDPOINT_LIST_TORRENTS, headers=headers, timeout=TIMEOUT)
+    response.raise_for_status()
+    return response.json()
+
+
+def request_torrent_take(api_key: str, torrent_id: int) -> dict:
+    """Test the take endpoint."""
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+    }
+    response = httpx.get(
+        f"{URL}/torrent/take/{torrent_id}", headers=headers, timeout=TIMEOUT
+    )
     response.raise_for_status()
     return response.json()
 

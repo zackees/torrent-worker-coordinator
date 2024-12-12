@@ -17,6 +17,9 @@ DEFAULT_DB_URL = f"sqlite:///{DB_PATH}"
 
 DB_URL = os.getenv("DB_URL", DEFAULT_DB_URL)
 
+print(f"DB_URL: {DB_URL}")
+print("CWD:", os.getcwd())
+
 log = make_logger(__name__)
 
 
@@ -26,17 +29,18 @@ class Base(DeclarativeBase):
     pass
 
 
-# Database setup
 engine = create_engine(DB_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(engine)
-
-# context lib
 
 
 @contextmanager
 def get_db() -> Generator[Session, None, None]:
     """Get database session."""
+    data = get_db.__dict__
+    initialized = data.get("initialized", False)
+    if not initialized:
+        data["initialized"] = True
+        Base.metadata.create_all(engine)
     db = SessionLocal()
     try:
         yield db
