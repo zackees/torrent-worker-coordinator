@@ -16,6 +16,7 @@ from fastapi.responses import (
     PlainTextResponse,
     RedirectResponse,
 )
+from pydantic import BaseModel
 
 from torrent_worker_coordinator.log import get_log_reversed, make_logger
 from torrent_worker_coordinator.models import TorrentManager, TorrentStatus, get_db
@@ -209,9 +210,16 @@ async def route_torrent_download(
         )
 
 
-@app.post("/torrent/{name}/take")
+class TorrentTakeRequest(BaseModel):
+    """Request body for taking a torrent."""
+
+    name: str
+    worker_id: str
+
+
+@app.post("/torrent/take")
 async def route_torrent_take(
-    name: str, worker_id: str, api_key: str = ApiKeyHeader
+    request: TorrentTakeRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
     """Attempt to take ownership of a torrent for processing."""
     if not is_authenticated(api_key):
@@ -219,7 +227,7 @@ async def route_torrent_take(
 
     # db = get_db()
     with get_db() as db:
-        torrent = TorrentManager.take_torrent(db, name, worker_id)
+        torrent = TorrentManager.take_torrent(db, request.name, request.worker_id)
         if not torrent:
             return JSONResponse(
                 {"error": "Torrent not found or already taken"}, status_code=404

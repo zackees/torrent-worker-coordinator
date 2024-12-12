@@ -13,8 +13,8 @@ os.environ.update(environ)
 from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_ready,
     request_torrent_list_all,
-    run_server_in_thread,
     request_torrent_take,
+    run_server_in_thread,
 )
 from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
 

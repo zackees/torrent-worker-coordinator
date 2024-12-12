@@ -226,11 +226,13 @@ def request_torrent_take(api_key: str, torrent_name: str) -> dict:
         "accept": "application/json",
         "api-key": api_key,
     }
-    # body = {"worker_id": "test_worker"}
-    url = f"{URL}/torrent/{torrent_name}/take"
+    body = {"name": torrent_name, "worker_id": "test_worker"}
+    url = f"{URL}/torrent/take"
     response = httpx.post(
-        url, headers=headers, timeout=TIMEOUT,
-
+        url,
+        headers=headers,
+        json=body,
+        timeout=TIMEOUT,
     )
     response.raise_for_status()
     return response.json()
