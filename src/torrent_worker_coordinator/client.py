@@ -170,10 +170,19 @@ class Client:
         json = self._post_json(url, body)
         return TorrentListResponse(**json).torrents
 
-    def list_active_torrents(self) -> list[TorrentResponse]:
+    def list_active_torrents(
+        self,
+        filter_by_worker_name: str | None = None,
+        order_by_oldest: bool | None = None,
+    ) -> list[TorrentResponse]:
         """Test the active torrents list endpoint."""
         url = self._make_endpoint("torrent/list/active")
-        json = self._post_json(url, {})
+        body: dict = {}
+        if filter_by_worker_name is not None:
+            body["filter_by_worker_name"] = filter_by_worker_name
+        if order_by_oldest is not None:
+            body["order_by_oldest"] = order_by_oldest
+        json = self._post_json(url, body)
         return TorrentListResponse(**json).torrents
 
     def list_completed_torrents(self) -> list[TorrentResponse]:
