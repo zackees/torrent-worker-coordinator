@@ -5,21 +5,42 @@ from torrent_worker_coordinator.app_schemas import (
     TorrentListResponse,
     TorrentResponse,
 )
-from torrent_worker_coordinator.settings import API_KEY
+from torrent_worker_coordinator.settings import API_KEY, CLIENT_SERVER_URL
 from torrent_worker_coordinator.test.run_server_in_thread import TIMEOUT
+
+
+def _init_host(host: str | None) -> str:
+    if host is None:
+        return CLIENT_SERVER_URL
+    if host.startswith("http"):
+        return host.split("://")[-1]
+    return host
 
 
 class Client:
 
-    def __init__(self, port: int, api_key: str = API_KEY) -> None:
-        self.port = port
-        self.api_key = api_key
-        self.endpoint_get = f"http://localhost:{self.port}/get"
-        self.endpoint_protected = f"http://localhost:{self.port}/protected"
-        self.endpoint_info = f"http://localhost:{self.port}/info"
-        self.endpoint_list_torrents = f"http://localhost:{self.port}/torrent/list/all"
-        self.endpoint_ready = f"http://localhost:{self.port}/ready"
-        self.endpoint_torrent_take = f"http://localhost:{self.port}/torrent/take"
+    def __init__(
+        self,
+        host: str | None = None,
+        port: int | None = None,
+        api_key: str | None = None,
+    ) -> None:
+        self.host = _init_host(host)
+        self.port = port or 80
+        self.api_key = api_key or API_KEY
+        self.endpoint_get = self._make_endpoint("get")
+        self.endpoint_protected = self._make_endpoint("protected")
+        self.endpoint_info = self._make_endpoint("info")
+        self.endpoint_list_torrents = self._make_endpoint("torrent/list/all")
+        self.endpoint_ready = self._make_endpoint("ready")
+        self.endpoint_torrent_take = self._make_endpoint("torrent/take")
+
+    def _make_endpoint(self, path: str) -> str:
+        if self.port == 80:
+            host = f"http://{self.host}"
+        else:
+            host = f"http://{self.host}:{self.port}"
+        return f"{host}/{path}"
 
     def info(self) -> InfoResponse:
         """Test the info endpoint."""
@@ -82,9 +103,8 @@ class Client:
             "accept": "text/plain",
             "api-key": self.api_key,
         }
-        response = httpx.get(
-            f"http://localhost:{self.port}/log", headers=headers, timeout=TIMEOUT
-        )
+        url = self._make_endpoint("log")
+        response = httpx.get(url, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
         return response.text
 
@@ -94,9 +114,10 @@ class Client:
             "accept": "application/json",
             "api-key": self.api_key,
         }
+        url = self._make_endpoint("torrent/info")
         params = {"name": name}
         response = httpx.get(
-            f"http://localhost:{self.port}/torrent/info",
+            url,
             headers=headers,
             params=params,
             timeout=TIMEOUT,
@@ -112,8 +133,9 @@ class Client:
             "api-key": self.api_key,
         }
         json = {"torrent_name": torrent_name}
+        url = self._make_endpoint("torrent/download")
         response = httpx.post(
-            f"http://localhost:{self.port}/torrent/download",
+            url,
             headers=headers,
             json=json,
             timeout=TIMEOUT,
@@ -130,8 +152,9 @@ class Client:
             "api-key": self.api_key,
         }
         body = {"torrent_name": torrent_name, "worker_name": worker_name}
+        url = self._make_endpoint("torrent/complete")
         response = httpx.post(
-            f"http://localhost:{self.port}/torrent/complete",
+            url,
             headers=headers,
             json=body,
             timeout=TIMEOUT,
@@ -147,8 +170,9 @@ class Client:
             "api-key": self.api_key,
         }
         body = {"name": name, "error_message": error_message}
+        url = self._make_endpoint("torrent/error")
         response = httpx.post(
-            f"http://localhost:{self.port}/torrent/error",
+            url,
             headers=headers,
             json=body,
             timeout=TIMEOUT,
@@ -169,8 +193,9 @@ class Client:
             "worker_name": worker_name,
             "progress": progress,
         }
+        url = self._make_endpoint("torrent/update")
         response = httpx.post(
-            f"http://localhost:{self.port}/torrent/update",
+            url,
             headers=headers,
             json=body,
             timeout=TIMEOUT,
@@ -188,8 +213,9 @@ class Client:
             "api-key": self.api_key,
         }
         body = {"order_by_oldest": order_by_oldest}
+        url = self._make_endpoint("torrent/list/pending")
         response = httpx.post(
-            f"http://localhost:{self.port}/torrent/list/pending",
+            url,
             headers=headers,
             timeout=TIMEOUT,
             json=body,
@@ -203,8 +229,9 @@ class Client:
             "accept": "application/json",
             "api-key": self.api_key,
         }
+        url = self._make_endpoint("torrent/list/active")
         response = httpx.get(
-            f"http://localhost:{self.port}/torrent/list/active",
+            url,
             headers=headers,
             timeout=TIMEOUT,
         )
@@ -217,8 +244,9 @@ class Client:
             "accept": "application/json",
             "api-key": self.api_key,
         }
+        url = self._make_endpoint("torrent/list/completed")
         response = httpx.get(
-            f"http://localhost:{self.port}/torrent/list/completed",
+            url,
             headers=headers,
             timeout=TIMEOUT,
         )

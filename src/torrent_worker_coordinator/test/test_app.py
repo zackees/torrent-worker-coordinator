@@ -15,7 +15,7 @@ class TestApp(Client):
     __test__ = False  # Prevent discovery
 
     def __init__(self, port: int, api_key: str = API_KEY) -> None:
-        super().__init__(port, api_key)
+        super().__init__(host="localhost", port=port, api_key=api_key)
         self.api_key = api_key
         self.server_context = None
 

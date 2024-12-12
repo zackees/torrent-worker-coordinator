@@ -6,8 +6,6 @@ import os
 import secrets
 from pathlib import Path
 
-DEFAULT_API_KEY = "a8d4ef6c3ae1c2517dcb9a5dda2500ac"
-
 _HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = _HERE.parent.parent
 
@@ -30,6 +28,7 @@ BACKGROUND_WORKER_INTERVAL = int(
 EXPIRE_TORRENT_WORKERS_AFTER = float(
     os.getenv("EXPIRE_TORRENT_WORKERS_AFTER", 60 * 60 * 4)
 )  # They must make contact once every 4 hours.
+CLIENT_SERVER_URL: str = os.getenv("CLIENT_SERVER_URL", "http://localhost")
 
 
 IS_RENDER_COM = False
