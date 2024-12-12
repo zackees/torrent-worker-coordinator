@@ -14,6 +14,7 @@ from torrent_worker_coordinator.integration_test_env import (  # noqa: E402
     request_ready,
     request_torrent_list_all,
     run_server_in_thread,
+    request_torrent_take,
 )
 from torrent_worker_coordinator.settings import API_KEY  # noqa: E402
 
@@ -44,12 +45,12 @@ class ComplexAppTester(unittest.TestCase):
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
 
-            # for torrent in torrents:
-            #     print(torrent)
-            # print()
+            for torrent in torrents:
+                print(torrent)
+            print()
 
-            # out = request_torrent_take(API_KEY, "test.torrent")
-            # print(out)
+            out = request_torrent_take(API_KEY, torrent_name="test.torrent")
+            print(out)
 
 
 if __name__ == "__main__":
