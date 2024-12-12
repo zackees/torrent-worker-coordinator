@@ -45,6 +45,7 @@ class ComplexAppTester(unittest.TestCase):
             out: dict = app.request_torrent_take(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
+            print(out)
             self.assertTrue(out["name"] == "test.torrent")
 
             torrents = app.request_torrent_list_all()
@@ -54,8 +55,8 @@ class ComplexAppTester(unittest.TestCase):
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
             torrent = torrents[0]
-            name = torrent["name"]
-            status = torrent["status"]
+            name = torrent.name
+            status = torrent.status
             self.assertEqual("test.torrent", name)
             self.assertEqual("active", status)
 

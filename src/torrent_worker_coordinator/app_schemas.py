@@ -49,7 +49,22 @@ class TorrentDownloadRequest(BaseModel):
     torrent_name: str
 
 
+class TorrentResponse(BaseModel):
+    """Response body for torrent info."""
+
+    id: int
+    name: str
+    status: str
+    worker_id: str | None
+    created_at: str
+    updated_at: str
+    completed_at: str | None
+    progress: int | None
+    error_message: str | None
+    last_update: str | None
+
+
 class TorrentListResponse(BaseModel):
     """Response body for listing torrents."""
 
-    torrents: list[dict]
+    torrents: list[TorrentResponse]

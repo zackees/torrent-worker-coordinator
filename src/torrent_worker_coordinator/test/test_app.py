@@ -8,7 +8,7 @@ Common code for integration tests.
 
 import httpx
 
-from torrent_worker_coordinator.app_schemas import TorrentListResponse
+from torrent_worker_coordinator.app_schemas import TorrentListResponse, TorrentResponse
 from torrent_worker_coordinator.settings import API_KEY
 from torrent_worker_coordinator.test.run_server_in_thread import (
     TIMEOUT,
@@ -66,7 +66,7 @@ class TestApp:
         response.raise_for_status()
         return response.json()
 
-    def request_torrent_list_all(self) -> list[dict]:
+    def request_torrent_list_all(self) -> list[TorrentResponse]:
         """Test the list_all endpoint."""
         headers = {
             "accept": "application/json",
@@ -76,7 +76,8 @@ class TestApp:
             self.endpoint_list_torrents, headers=headers, timeout=TIMEOUT
         )
         response.raise_for_status()
-        return TorrentListResponse(**response.json()).torrents
+        json = response.json()
+        return TorrentListResponse(**json).torrents
 
     def request_torrent_take(self, torrent_name: str, worker_name: str) -> dict:
         """Test the take endpoint."""
@@ -202,7 +203,7 @@ class TestApp:
         response.raise_for_status()
         return response.json()
 
-    def request_torrent_list_pending(self, order_by_oldest) -> list[dict]:
+    def request_torrent_list_pending(self, order_by_oldest) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
         headers = {
             "accept": "application/json",
@@ -218,7 +219,7 @@ class TestApp:
         response.raise_for_status()
         return TorrentListResponse(**response.json()).torrents
 
-    def request_torrent_list_active(self) -> list[dict]:
+    def request_torrent_list_active(self) -> list[TorrentResponse]:
         """Test the active torrents list endpoint."""
         headers = {
             "accept": "application/json",
@@ -232,7 +233,7 @@ class TestApp:
         response.raise_for_status()
         return TorrentListResponse(**response.json()).torrents
 
-    def request_torrent_list_completed(self) -> list[dict]:
+    def request_torrent_list_completed(self) -> list[TorrentResponse]:
         """Test the completed torrents list endpoint."""
         headers = {
             "accept": "application/json",

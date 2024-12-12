@@ -25,6 +25,7 @@ from torrent_worker_coordinator.app_schemas import (
     TorrentInfoRequest,
     TorrentListPendingRequest,
     TorrentListResponse,
+    TorrentResponse,
     TorrentTakeRequest,
     TorrentUpdateRequest,
 )
@@ -318,7 +319,17 @@ async def route_torrent_list_all(api_key: str = ApiKeyHeader) -> TorrentListResp
     try:
         with get_db() as db:
             torrents = TorrentManager.get_all_torrents(db)
-            return TorrentListResponse(torrents=[t.to_dict() for t in torrents])
+            list_of_dicts = [t.to_dict() for t in torrents]
+            list_of_torrents: list[TorrentResponse] = []
+            for t in list_of_dicts:
+                try:
+                    tr = TorrentResponse(**t)
+                    list_of_torrents.append(tr)
+                except Exception as e:
+                    log.error("Error creating TorrentResponse: %s", str(e))
+                    raise
+
+            return TorrentListResponse(torrents=list_of_torrents)
     except Exception as e:
         msg = {"error": "Error getting torrents", "exception": str(e)}
         return JSONResponse(msg, status_code=500)  # type: ignore
