@@ -226,8 +226,8 @@ def request_torrent_take(api_key: str, torrent_name: str) -> dict:
         "accept": "application/json",
         "api-key": api_key,
     }
-    body = {"name": torrent_name, "worker_id": "test_worker"}
-    url = f"{URL}/torrent/take"
+    body = {"worker_id": "test_worker"}
+    url = f"{URL}/torrent/{torrent_name}/take"
     response = httpx.post(
         url,
         headers=headers,

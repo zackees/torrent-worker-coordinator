@@ -213,13 +213,12 @@ async def route_torrent_download(
 class TorrentTakeRequest(BaseModel):
     """Request body for taking a torrent."""
 
-    name: str
     worker_id: str
 
 
-@app.post("/torrent/take")
+@app.post("/torrent/{name}/take")
 async def route_torrent_take(
-    request: TorrentTakeRequest, api_key: str = ApiKeyHeader
+    name: str, request: TorrentTakeRequest, api_key: str = ApiKeyHeader
 ) -> JSONResponse:
     """Attempt to take ownership of a torrent for processing."""
     if not is_authenticated(api_key):
@@ -227,7 +226,7 @@ async def route_torrent_take(
 
     # db = get_db()
     with get_db() as db:
-        torrent = TorrentManager.take_torrent(db, request.name, request.worker_id)
+        torrent = TorrentManager.take_torrent(db, name, request.worker_id)
         if not torrent:
             return JSONResponse(
                 {"error": "Torrent not found or already taken"}, status_code=404
