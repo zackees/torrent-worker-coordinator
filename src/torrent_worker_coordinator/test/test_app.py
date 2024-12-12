@@ -106,3 +106,139 @@ class TestApp:
         response = httpx.get(self.endpoint_ready, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
         return response.json()["ready"]
+
+    def request_log(self) -> str:
+        """Test the log endpoint."""
+        headers = {
+            "accept": "text/plain",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(
+            f"http://localhost:{self.port}/log", headers=headers, timeout=TIMEOUT
+        )
+        response.raise_for_status()
+        return response.text
+
+    def request_torrent_info(self, name: str) -> dict:
+        """Test the torrent info endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        params = {"name": name}
+        response = httpx.get(
+            f"http://localhost:{self.port}/torrent/info",
+            headers=headers,
+            params=params,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def request_torrent_download(self, torrent_name: str) -> bytes:
+        """Test the torrent download endpoint."""
+        headers = {
+            "accept": "application/x-bittorrent",
+            "api-key": self.api_key,
+        }
+        params = {"torrent_name": torrent_name}
+        response = httpx.get(
+            f"http://localhost:{self.port}/torrent/download",
+            headers=headers,
+            params=params,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.content
+
+    def request_torrent_complete(self, name: str) -> dict:
+        """Test the torrent complete endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        body = {"name": name}
+        response = httpx.post(
+            f"http://localhost:{self.port}/torrent/complete",
+            headers=headers,
+            json=body,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def request_torrent_error(self, name: str, error_message: str) -> dict:
+        """Test the torrent error endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        body = {"name": name, "error_message": error_message}
+        response = httpx.post(
+            f"http://localhost:{self.port}/torrent/error",
+            headers=headers,
+            json=body,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def request_torrent_update(
+        self, name: str, progress: int, status_message: str
+    ) -> dict:
+        """Test the torrent update endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        body = {"name": name, "progress": progress, "status_message": status_message}
+        response = httpx.post(
+            f"http://localhost:{self.port}/torrent/update",
+            headers=headers,
+            json=body,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def request_torrent_list_pending(self) -> list:
+        """Test the pending torrents list endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(
+            f"http://localhost:{self.port}/torrent/list/pending",
+            headers=headers,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()["torrents"]
+
+    def request_torrent_list_active(self) -> list:
+        """Test the active torrents list endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(
+            f"http://localhost:{self.port}/torrent/list/active",
+            headers=headers,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()["torrents"]
+
+    def request_torrent_list_completed(self) -> list:
+        """Test the completed torrents list endpoint."""
+        headers = {
+            "accept": "application/json",
+            "api-key": self.api_key,
+        }
+        response = httpx.get(
+            f"http://localhost:{self.port}/torrent/list/completed",
+            headers=headers,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()["torrents"]
