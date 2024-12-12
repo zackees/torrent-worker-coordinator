@@ -89,23 +89,13 @@ class Client:
 
     def take_torrent(self, worker_name: str, torrent_name: str) -> TorrentResponse:
         """Test the take endpoint."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        body = {
-            "worker_name": worker_name,
-            "torrent_name": torrent_name,
-        }
-        response = httpx.post(
+
+        json = self.post_json(
             self.endpoint_torrent_take,
-            headers=headers,
-            json=body,
-            timeout=TIMEOUT,
+            {"worker_name": worker_name, "torrent_name": torrent_name},
         )
-        response.raise_for_status()
-        json = response.json()
         return TorrentResponse(**json)
+        # return TorrentResponse(**json)
 
     def ready(self) -> bool:
         """Test the ready endpoint."""
