@@ -21,21 +21,7 @@ class Client:
         self.endpoint_ready = f"http://localhost:{self.port}/ready"
         self.endpoint_torrent_take = f"http://localhost:{self.port}/torrent/take"
 
-    def request_get(self) -> dict:
-        """Test the get method."""
-        response = httpx.get(self.endpoint_get, timeout=TIMEOUT)
-        return response.json()
-
-    def request_protected(self) -> dict:
-        """Test the get method."""
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        response = httpx.get(self.endpoint_protected, headers=headers, timeout=TIMEOUT)
-        return response.json()
-
-    def request_info(self) -> InfoResponse:
+    def info(self) -> InfoResponse:
         """Test the info endpoint."""
         headers = {
             "accept": "application/json",
@@ -46,7 +32,7 @@ class Client:
         json = response.json()
         return InfoResponse(**json)
 
-    def request_torrent_list_all(self) -> list[TorrentResponse]:
+    def list_torrents(self) -> list[TorrentResponse]:
         """Test the list_all endpoint."""
         headers = {
             "accept": "application/json",
@@ -59,9 +45,7 @@ class Client:
         json = response.json()
         return TorrentListResponse(**json).torrents
 
-    def request_torrent_take(
-        self, torrent_name: str, worker_name: str
-    ) -> TorrentResponse:
+    def take_torrent(self, torrent_name: str, worker_name: str) -> TorrentResponse:
         """Test the take endpoint."""
         headers = {
             "accept": "application/json",
@@ -81,7 +65,7 @@ class Client:
         json = response.json()
         return TorrentResponse(**json)
 
-    def request_ready(self) -> bool:
+    def ready(self) -> bool:
         """Test the ready endpoint."""
         headers = {
             "accept": "application/json",
@@ -92,7 +76,7 @@ class Client:
         response.raise_for_status()
         return response.json()["ready"]
 
-    def request_log(self) -> str:
+    def log(self) -> str:
         """Test the log endpoint."""
         headers = {
             "accept": "text/plain",
@@ -104,7 +88,7 @@ class Client:
         response.raise_for_status()
         return response.text
 
-    def request_torrent_info(self, name: str) -> TorrentResponse:
+    def torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
         headers = {
             "accept": "application/json",
@@ -121,7 +105,7 @@ class Client:
         json = response.json()
         return TorrentResponse(**json)
 
-    def request_torrent_download(self, torrent_name: str) -> bytes:
+    def download_torrent(self, torrent_name: str) -> bytes:
         """Test the torrent download endpoint."""
         headers = {
             "accept": "application/x-bittorrent",
@@ -137,7 +121,7 @@ class Client:
         response.raise_for_status()
         return response.content
 
-    def request_torrent_complete(
+    def set_torrent_complete(
         self, torrent_name: str, worker_name: str
     ) -> TorrentResponse:
         """Test the torrent complete endpoint."""
@@ -156,7 +140,7 @@ class Client:
         json = response.json()
         return TorrentResponse(**json)
 
-    def request_torrent_error(self, name: str, error_message: str) -> dict:
+    def set_torrent_error(self, name: str, error_message: str) -> dict:
         """Test the torrent error endpoint."""
         headers = {
             "accept": "application/json",
@@ -172,9 +156,7 @@ class Client:
         response.raise_for_status()
         return response.json()
 
-    def request_torrent_update(
-        self, name: str, progress: int, status_message: str
-    ) -> dict:
+    def update_torrent(self, name: str, progress: int, status_message: str) -> dict:
         """Test the torrent update endpoint."""
         headers = {
             "accept": "application/json",
@@ -190,7 +172,7 @@ class Client:
         response.raise_for_status()
         return response.json()
 
-    def request_torrent_list_pending(self, order_by_oldest) -> list[TorrentResponse]:
+    def list_pending_torrents(self, order_by_oldest) -> list[TorrentResponse]:
         """Test the pending torrents list endpoint."""
         headers = {
             "accept": "application/json",
@@ -206,7 +188,7 @@ class Client:
         response.raise_for_status()
         return TorrentListResponse(**response.json()).torrents
 
-    def request_torrent_list_active(self) -> list[TorrentResponse]:
+    def list_active_torrents(self) -> list[TorrentResponse]:
         """Test the active torrents list endpoint."""
         headers = {
             "accept": "application/json",
@@ -220,7 +202,7 @@ class Client:
         response.raise_for_status()
         return TorrentListResponse(**response.json()).torrents
 
-    def request_torrent_list_completed(self) -> list[TorrentResponse]:
+    def list_completed_torrents(self) -> list[TorrentResponse]:
         """Test the completed torrents list endpoint."""
         headers = {
             "accept": "application/json",

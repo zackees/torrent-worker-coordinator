@@ -34,22 +34,22 @@ class ComplexAppTester(unittest.TestCase):
         """Test the basic GET endpoint."""
         with TestApp(PORT) as app:
 
-            while app.request_ready() is False:
+            while app.ready() is False:
                 time.sleep(0.1)
 
-            torrents = app.request_torrent_list_all()
+            torrents = app.list_torrents()
             self.assertEqual(
                 1,
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            out: TorrentResponse = app.request_torrent_take(
+            out: TorrentResponse = app.take_torrent(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
             print(out)
             self.assertTrue(out.name == "test.torrent")
 
-            torrents = app.request_torrent_list_all()
+            torrents = app.list_torrents()
             self.assertEqual(
                 1,
                 len(torrents),
@@ -61,11 +61,11 @@ class ComplexAppTester(unittest.TestCase):
             self.assertEqual("test.torrent", name)
             self.assertEqual("active", status)
 
-            out = app.request_torrent_complete(
+            out = app.set_torrent_complete(
                 torrent_name="test.torrent", worker_name="test_worker"
             )
 
-            torrent_bytes = app.request_torrent_download(torrent_name="test.torrent")
+            torrent_bytes = app.download_torrent(torrent_name="test.torrent")
             self.assertIsNotNone(torrent_bytes)
 
 
