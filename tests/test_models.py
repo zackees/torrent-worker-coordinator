@@ -66,6 +66,8 @@ class TestTorrentManager(unittest.TestCase):
         # Try taking an already taken torrent
         result = TorrentManager.take_torrent(self.db_session, "test_torrent", "worker2")
         self.assertIsNone(result)
+        torrent = TorrentManager.get_torrent(self.db_session, "test_torrent")
+        self.assertEqual(torrent.worker_id, "worker1")
 
     def test_update_torrent_status(self):
         """Test updating torrent status."""
