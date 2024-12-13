@@ -1,8 +1,9 @@
 from .app_schemas import InfoResponse, TorrentListResponse, TorrentResponse
 from .client import Client, ClientException
 from .test.test_app import TestApp
+from .types import InfoHash
 
-__version__ = "1.0.18"
+__version__ = "1.0.19"
 
 
 class Api:
@@ -32,4 +33,6 @@ __all__ = [
     "TorrentListResponse",
     "TorrentResponse",
     "ClientException",
+    "TestApp",
+    "InfoHash",
 ]
