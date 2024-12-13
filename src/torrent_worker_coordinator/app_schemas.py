@@ -49,12 +49,6 @@ class TorrentListActiveRequest(BaseModel):
     filter_by_worker_name: str | None = None
 
 
-class TorrentDownloadRequest(BaseModel):
-    """Request body for taking a torrent."""
-
-    torrent_name: str
-
-
 class InfoResponse(BaseModel):
     """Response body for info endpoint."""
 

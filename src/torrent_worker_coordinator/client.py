@@ -82,17 +82,15 @@ class Client:
         except Exception as e:
             raise ClientException(f"Error: {e}")
 
-    def _download(self, endpoint: str, json: dict | None = None) -> bytes:
+    def _download(self, endpoint: str) -> bytes:
         try:
             headers = {
                 "accept": "application/x-bittorrent",
-                "api-key": self.api_key,
             }
-            response = httpx.post(
+            response = httpx.get(
                 endpoint,
                 headers=headers,
                 timeout=TIMEOUT,
-                json=json,
             )
             response.raise_for_status()
             return response.content
@@ -144,8 +142,7 @@ class Client:
     def download_torrent(self, torrent_name: str) -> bytes:
         """Test the torrent download endpoint."""
         out = self._download(
-            self._make_endpoint("torrent/download"),
-            {"torrent_name": torrent_name},
+            self._make_endpoint(f"torrent/download/{torrent_name}"),
         )
         return out
 

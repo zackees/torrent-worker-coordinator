@@ -22,7 +22,6 @@ from fastapi.responses import (
 from torrent_worker_coordinator.app_schemas import (
     InfoResponse,
     TorrentCompleteRequest,
-    TorrentDownloadRequest,
     TorrentErrorRequest,
     TorrentInfoRequest,
     TorrentListActiveRequest,
@@ -209,20 +208,15 @@ async def route_torrent_info(
         return JSONResponse(torrent.to_dict())
 
 
-@app.post("/torrent/download")
-async def route_torrent_download(
-    request: TorrentDownloadRequest, api_key: str = ApiKeyHeader
-) -> FileResponse:
+@app.get("/torrent/download/{filename}")
+async def route_torrent_download(filename: str) -> FileResponse:
     """Download a torrent by name."""
-    if not is_authenticated(api_key):
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)  # type: ignore
-
     with get_db() as db:
-        torrent = TorrentManager.get_torrent(db, request.torrent_name)
+        torrent = TorrentManager.get_torrent(db, filename)
         if torrent is None:
             return JSONResponse({"error": "Torrent not found"}, status_code=404)  # type: ignore
 
-        torrent_path = TORRENTS_PATH / request.torrent_name
+        torrent_path = TORRENTS_PATH / filename
         if not os.path.exists(torrent_path):
             return JSONResponse(  # type: ignore
                 {"error": "Torrent file not found, even though it should exist"},
