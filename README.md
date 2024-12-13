@@ -20,3 +20,15 @@ that a pool of workers can use to
 
 [![Lint](https://github.com/zackees/template-fastapi-project/actions/workflows/lint.yml/badge.svg)](https://github.com/zackees/template-fastapi-project/actions/workflows/lint.yml)
 
+
+# Misc
+  * https://github.com/rndusr/torf-cli
+  
+```bash
+$ torf -i docs.revised.torrent --json | jq .Files
+[
+  "docs/torf.1",
+  "docs/torf.1.asciidoc",
+  "docs/torf.1.html"
+]
+```
