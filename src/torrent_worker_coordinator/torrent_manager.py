@@ -14,11 +14,6 @@ class TorrentManager:
     """Helper class for torrent database operations."""
 
     @staticmethod
-    def get_torrent(db: Session, name: str) -> Optional[Torrent]:
-        """Get a torrent by name."""
-        return db.query(Torrent).filter(Torrent.name == name).first()
-
-    @staticmethod
     def create_torrent(db: Session, name: str) -> Torrent:
         """Create a new torrent."""
         torrent = Torrent(name=name)
@@ -39,6 +34,38 @@ class TorrentManager:
         if not torrent:
             torrent = TorrentManager.create_torrent(db, name)
         return torrent
+
+    @staticmethod
+    def get_torrent(db: Session, name: str) -> Torrent | None:
+        """Get a torrent by name."""
+        return db.query(Torrent).filter(Torrent.name == name).first()
+
+    @staticmethod
+    def take_torrent(
+        db: Session, worker_name: str, torrent_name: str
+    ) -> Torrent | None:
+        """Attempt to take ownership of a torrent."""
+
+        # debug
+        torrents = db.query(Torrent).all()
+        print("torrents", torrents)
+
+        # Only take the torrent if it is pending, updating its status atomically.
+        result = (
+            db.query(Torrent)
+            .filter(Torrent.name == torrent_name)
+            .filter(Torrent.status == TorrentStatus.PENDING)
+            .update(
+                {"status": TorrentStatus.ACTIVE, "worker_id": worker_name},
+                synchronize_session=False,
+            )
+        )
+        db.commit()
+
+        if result:  # If update succeeded, fetch and return the updated Torrent.
+            return db.query(Torrent).filter(Torrent.name == torrent_name).first()
+
+        return None
 
     @staticmethod
     def get_all_torrents(db: Session) -> list[Torrent]:
@@ -75,24 +102,6 @@ class TorrentManager:
             synchronize_session=False,
         )
         db.commit()
-
-    @staticmethod
-    def take_torrent(db: Session, name: str, worker_name: str) -> Optional[Torrent]:
-        """Attempt to take ownership of a torrent."""
-        torrent = TorrentManager.get_torrent(db, name)
-        if not torrent or torrent.status != TorrentStatus.PENDING:
-            return None
-
-        try:
-            setattr(torrent, "status", TorrentStatus.ACTIVE)
-            setattr(torrent, "worker_id", worker_name)
-            db.commit()
-            db.refresh(torrent)
-            return torrent
-        except SQLAlchemyError as e:
-            db.rollback()
-            log.error("Error taking torrent: %s", str(e))
-            raise
 
     @staticmethod
     def update_torrent_status(

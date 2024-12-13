@@ -247,11 +247,18 @@ async def route_torrent_take(
     # db = get_db()
     with get_db() as db:
         torrent = TorrentManager.take_torrent(
-            db, request.torrent_name, request.worker_name
+            db=db,
+            worker_name=request.worker_name,
+            torrent_name=request.torrent_name,
         )
         if not torrent:
+            torrent = TorrentManager.get_torrent(db, request.torrent_name)
+            if not torrent:
+                return JSONResponse(  # type: ignore
+                    {"error": "Torrent not found"}, status_code=404
+                )
             return JSONResponse(  # type: ignore
-                {"error": "Torrent not found or already taken"}, status_code=404
+                {"error": "Torrent might have already been taken"}, status_code=409
             )
 
         return TorrentResponse(**torrent.to_dict())

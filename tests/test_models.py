@@ -55,7 +55,9 @@ class TestTorrentManager(unittest.TestCase):
 
         # Take the torrent
         torrent = TorrentManager.take_torrent(
-            self.db_session, "test_torrent", "worker1"
+            self.db_session,
+            worker_name="worker1",
+            torrent_name="test_torrent",
         )
         self.assertIsNotNone(torrent)
         self.assertEqual(torrent.status, TorrentStatus.ACTIVE)
