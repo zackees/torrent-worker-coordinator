@@ -136,7 +136,9 @@ class Client:
 
     def torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
-        json = self._post_json(self._make_endpoint("torrent/info"), {"name": name})
+        json = self._post_json(
+            self._make_endpoint("torrent/info"), {"torrent_name": name}
+        )
         return TorrentResponse(**json)
 
     def download_torrent(self, torrent_name: str) -> bytes:

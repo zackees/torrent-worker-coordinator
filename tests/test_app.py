@@ -50,6 +50,13 @@ class AppTester(unittest.TestCase):
             print(result)
             print()
 
+    def test_torrent_info(self) -> None:
+        """Test retrieving torrent info."""
+        with TestApp() as app:
+            result = app.torrent_info("folder.torrent")
+            print(result)
+            print()
+
 
 if __name__ == "__main__":
     unittest.main()
