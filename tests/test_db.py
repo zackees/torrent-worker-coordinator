@@ -46,12 +46,12 @@ class TestDatabase(unittest.TestCase):
     def create_sample_torrents(self):
         """Create sample torrents with different statuses."""
         torrents = [
-            Torrent(name="pending1", status=TorrentStatus.PENDING),
-            Torrent(name="pending2", status=TorrentStatus.PENDING),
-            Torrent(name="active1", status=TorrentStatus.ACTIVE),
-            Torrent(name="completed1", status=TorrentStatus.COMPLETED),
-            Torrent(name="completed2", status=TorrentStatus.COMPLETED),
-            Torrent(name="error1", status=TorrentStatus.ERROR),
+            Torrent(name="pending1", status=TorrentStatus.PENDING, info_hash="1"),
+            Torrent(name="pending2", status=TorrentStatus.PENDING, info_hash="2"),
+            Torrent(name="active1", status=TorrentStatus.ACTIVE, info_hash="3"),
+            Torrent(name="completed1", status=TorrentStatus.COMPLETED, info_hash="4"),
+            Torrent(name="completed2", status=TorrentStatus.COMPLETED, info_hash="5"),
+            Torrent(name="error1", status=TorrentStatus.ERROR, info_hash="6"),
         ]
 
         for torrent in torrents:

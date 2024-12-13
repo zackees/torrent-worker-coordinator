@@ -47,10 +47,10 @@ class DownloadCycleTester(unittest.TestCase):
                 f"Expected 3 torrent, got {len(torrents)}, which was {torrents}",
             )
             out: TorrentResponse = app.take_torrent(
-                torrent_name="folder.torrent", worker_name="test_worker"
+                torrent_name="expected-single-file.torrent", worker_name="test_worker"
             )
             print(out)
-            self.assertTrue(out.name == "folder.torrent")
+            self.assertTrue(out.name == "expected-single-file.torrent")
 
             torrents = app.list_active_torrents(filter_by_worker_name="test_worker")
             self.assertEqual(
@@ -74,22 +74,28 @@ class DownloadCycleTester(unittest.TestCase):
                 len(torrents),
                 f"Expected 3 torrent, got {len(torrents)}, which was {torrents}",
             )
-            torrent = [t for t in torrents if t.name == "folder.torrent"][0]
+            torrent = [t for t in torrents if t.name == "expected-single-file.torrent"][
+                0
+            ]
             name = torrent.name
             status = torrent.status
-            self.assertEqual("folder.torrent", name)
+            self.assertEqual("expected-single-file.torrent", name)
             self.assertEqual("active", status)
 
             torrent = app.update_torrent(
-                worker_name="test_worker", torrent_name="folder.torrent", progress=50
+                worker_name="test_worker",
+                torrent_name="expected-single-file.torrent",
+                progress=50,
             )
             self.assertEqual(50, torrent.progress)
 
             out = app.set_torrent_complete(
-                torrent_name="folder.torrent", worker_name="test_worker"
+                torrent_name="expected-single-file.torrent", worker_name="test_worker"
             )
 
-            torrent_bytes = app.download_torrent(torrent_name="folder.torrent")
+            torrent_bytes = app.download_torrent(
+                torrent_name="expected-single-file.torrent"
+            )
             self.assertIsNotNone(torrent_bytes)
             pending_torrents = app.list_pending_torrents()
             self.assertEqual(2, len(pending_torrents))

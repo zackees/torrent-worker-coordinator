@@ -45,9 +45,9 @@ class ComplexAppTester(unittest.TestCase):
                 len(torrents),
                 f"Expected 1 torrent, got {len(torrents)}, which was {torrents}",
             )
-            app.take_torrent(torrent_name="folder.torrent", worker_name="test_worker")
+            app.take_torrent(torrent_name="1.torrent", worker_name="test_worker")
             # update it to 50% progress
-            torrent = app.update_torrent("test_worker", "folder.torrent", 50)
+            torrent = app.update_torrent("test_worker", "1.torrent", 50)
 
             with get_db() as db:
                 TorrentManager.recycle_unattended_torrents(db, max_age=1)

@@ -14,9 +14,9 @@ class TorrentManager:
     """Helper class for torrent database operations."""
 
     @staticmethod
-    def create_torrent(db: Session, name: str) -> Torrent:
+    def create_torrent(db: Session, name: str, info_hash: str) -> Torrent:
         """Create a new torrent."""
-        torrent = Torrent(name=name)
+        torrent = Torrent(name=name, info_hash=info_hash)
         try:
             db.add(torrent)
             db.commit()
@@ -28,11 +28,11 @@ class TorrentManager:
             raise
 
     @staticmethod
-    def create_if_missing(db: Session, name: str) -> Torrent:
+    def create_if_missing(db: Session, name: str, info_hash: str) -> Torrent:
         """Create a new torrent if it doesn't exist."""
         torrent = TorrentManager.get_torrent(db, name)
         if not torrent:
-            torrent = TorrentManager.create_torrent(db, name)
+            torrent = TorrentManager.create_torrent(db, name, info_hash)
         return torrent
 
     @staticmethod

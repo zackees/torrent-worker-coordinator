@@ -61,6 +61,7 @@ class Torrent(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
+    info_hash = Column(String, unique=True, nullable=False)
     status: Column[TorrentStatus] = Column(  # type: ignore
         SQLEnum(TorrentStatus), nullable=False, default=TorrentStatus.PENDING  # type: ignore
     )

@@ -26,7 +26,9 @@ class TestTorrentManager(unittest.TestCase):
 
     def test_create_torrent(self):
         """Test creating a new torrent."""
-        torrent = TorrentManager.create_torrent(self.db_session, "test_torrent")
+        torrent = TorrentManager.create_torrent(
+            self.db_session, "test_torrent", info_hash="1"
+        )
         self.assertEqual(torrent.name, "test_torrent")
         self.assertEqual(torrent.status, TorrentStatus.PENDING)
         self.assertIsNone(torrent.worker_id)
@@ -37,7 +39,7 @@ class TestTorrentManager(unittest.TestCase):
     def test_get_torrent(self):
         """Test getting a torrent by name."""
         # Create a torrent first
-        TorrentManager.create_torrent(self.db_session, "test_torrent")
+        TorrentManager.create_torrent(self.db_session, "test_torrent", info_hash="1")
 
         # Get the torrent
         torrent = TorrentManager.get_torrent(self.db_session, "test_torrent")
@@ -51,7 +53,7 @@ class TestTorrentManager(unittest.TestCase):
     def test_take_torrent(self):
         """Test taking ownership of a torrent."""
         # Create a torrent
-        TorrentManager.create_torrent(self.db_session, "test_torrent")
+        TorrentManager.create_torrent(self.db_session, "test_torrent", info_hash="1")
 
         # Take the torrent
         torrent = TorrentManager.take_torrent(
@@ -72,7 +74,7 @@ class TestTorrentManager(unittest.TestCase):
     def test_update_torrent_status(self):
         """Test updating torrent status."""
         # Create a torrent
-        TorrentManager.create_torrent(self.db_session, "test_torrent")
+        TorrentManager.create_torrent(self.db_session, "test_torrent", info_hash="1")
 
         # Update status
         updated = TorrentManager.update_torrent_status(
@@ -97,15 +99,19 @@ class TestTorrentManager(unittest.TestCase):
     def test_get_torrents_by_status(self):
         """Test getting torrents by status."""
         # Create some torrents with different statuses
-        TorrentManager.create_torrent(self.db_session, "pending1")
-        TorrentManager.create_torrent(self.db_session, "pending2")
+        TorrentManager.create_torrent(self.db_session, "pending1", info_hash="1")
+        TorrentManager.create_torrent(self.db_session, "pending2", info_hash="2")
 
-        active = TorrentManager.create_torrent(self.db_session, "active1")
+        active = TorrentManager.create_torrent(
+            self.db_session, "active1", info_hash="3"
+        )
         TorrentManager.update_torrent_status(
             self.db_session, "active1", TorrentStatus.ACTIVE
         )
 
-        completed = TorrentManager.create_torrent(self.db_session, "completed1")
+        completed = TorrentManager.create_torrent(
+            self.db_session, "completed1", info_hash="4"
+        )
         TorrentManager.update_torrent_status(
             self.db_session, "completed1", TorrentStatus.COMPLETED
         )
@@ -129,16 +135,18 @@ class TestTorrentManager(unittest.TestCase):
     def test_get_all_torrents(self):
         """Test getting all torrents."""
         # Create some torrents
-        TorrentManager.create_torrent(self.db_session, "torrent1")
-        TorrentManager.create_torrent(self.db_session, "torrent2")
-        TorrentManager.create_torrent(self.db_session, "torrent3")
+        TorrentManager.create_torrent(self.db_session, "torrent1", info_hash="1")
+        TorrentManager.create_torrent(self.db_session, "torrent2", info_hash="2")
+        TorrentManager.create_torrent(self.db_session, "torrent3", info_hash="3")
 
         torrents = TorrentManager.get_all_torrents(self.db_session)
         self.assertEqual(len(torrents), 3)
 
     def test_torrent_to_dict(self):
         """Test the to_dict method of Torrent."""
-        torrent = TorrentManager.create_torrent(self.db_session, "test_torrent")
+        torrent = TorrentManager.create_torrent(
+            self.db_session, "test_torrent", info_hash="1"
+        )
         torrent_dict = torrent.to_dict()
 
         self.assertIsInstance(torrent_dict, dict)
