@@ -35,6 +35,11 @@ class Client:
         self.endpoint_ready = self._make_endpoint("ready")
         self.endpoint_torrent_take = self._make_endpoint("torrent/take")
 
+    def get_download_link(self, torrent_name: str | TorrentResponse) -> str:
+        if isinstance(torrent_name, TorrentResponse):
+            torrent_name = torrent_name.name
+        return self._make_endpoint(f"torrent/download/{torrent_name}")
+
     def _make_endpoint(self, path: str) -> str:
         if self.port == 80:
             host = f"http://{self.host}"
