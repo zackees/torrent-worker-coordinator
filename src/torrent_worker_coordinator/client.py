@@ -17,6 +17,10 @@ def _init_host(host: str | None) -> str:
     return host
 
 
+class ClientException(Exception):
+    pass
+
+
 class Client:
 
     def __init__(
@@ -48,37 +52,56 @@ class Client:
         return f"{host}/{path}"
 
     def _post_json(self, endpoint: str, json: dict) -> dict:
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        response = httpx.post(
-            endpoint,
-            headers=headers,
-            json=json,
-            timeout=TIMEOUT,
-        )
-        response.raise_for_status()
-        json = response.json()
-        return json
+        try:
+            headers = {
+                "accept": "application/json",
+                "api-key": self.api_key,
+            }
+            response = httpx.post(
+                endpoint,
+                headers=headers,
+                json=json,
+                timeout=TIMEOUT,
+            )
+            response.raise_for_status()
+            json = response.json()
+            return json
+        except Exception as e:
+            raise ClientException(f"Error: {e}")
+
+    def _get_json(self, path: str) -> dict:
+        try:
+            headers = {
+                "accept": "application/json",
+                "api-key": self.api_key,
+            }
+            url = self._make_endpoint(path)
+            response = httpx.get(url, headers=headers, timeout=TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            raise ClientException(f"Error: {e}")
 
     def _download(self, endpoint: str, json: dict | None = None) -> bytes:
-        headers = {
-            "accept": "application/x-bittorrent",
-            "api-key": self.api_key,
-        }
-        response = httpx.post(
-            endpoint,
-            headers=headers,
-            timeout=TIMEOUT,
-            json=json,
-        )
-        response.raise_for_status()
-        return response.content
+        try:
+            headers = {
+                "accept": "application/x-bittorrent",
+                "api-key": self.api_key,
+            }
+            response = httpx.post(
+                endpoint,
+                headers=headers,
+                timeout=TIMEOUT,
+                json=json,
+            )
+            response.raise_for_status()
+            return response.content
+        except Exception as e:
+            raise ClientException(f"Error: {e}")
 
     def info(self) -> InfoResponse:
         """Test the info endpoint."""
-        json = self.get_json("info")
+        json = self._get_json("info")
         return InfoResponse(**json)
 
     def list_torrents(self) -> list[TorrentResponse]:
@@ -110,16 +133,6 @@ class Client:
         response = httpx.get(url, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
         return response.text
-
-    def get_json(self, path: str) -> dict:
-        headers = {
-            "accept": "application/json",
-            "api-key": self.api_key,
-        }
-        url = self._make_endpoint(path)
-        response = httpx.get(url, headers=headers, timeout=TIMEOUT)
-        response.raise_for_status()
-        return response.json()
 
     def torrent_info(self, name: str) -> TorrentResponse:
         """Test the torrent info endpoint."""
