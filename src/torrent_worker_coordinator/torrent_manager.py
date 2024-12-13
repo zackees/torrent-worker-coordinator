@@ -70,7 +70,8 @@ class TorrentManager:
     @staticmethod
     def get_all_torrents(db: Session) -> list[Torrent]:
         """Get all torrents."""
-        return db.query(Torrent).all()
+        out = db.query(Torrent).all()
+        return out
 
     @staticmethod
     def get_torrents_by_status(

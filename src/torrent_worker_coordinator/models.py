@@ -83,6 +83,7 @@ class Torrent(Base):
         return {
             "id": self.id,
             "name": self.name,
+            "info_hash": self.info_hash,
             "status": self.status.value,
             "worker_id": self.worker_id,
             "created_at": self.created_at.isoformat(),

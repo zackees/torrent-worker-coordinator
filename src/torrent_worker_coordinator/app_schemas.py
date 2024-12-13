@@ -65,6 +65,7 @@ class TorrentResponse(BaseModel):
     """Response body for torrent info."""
 
     id: int
+    info_hash: str
     name: str
     status: str
     worker_id: str | None
