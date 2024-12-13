@@ -9,3 +9,4 @@ colorama
 sqlalchemy
 httpx
 torrent-worker>=1.0.1
+torf-cli
